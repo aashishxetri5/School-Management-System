@@ -45,6 +45,10 @@
 # Kernel Module Compile Results
 *.mod*
 *.cmd
+
+# Dat files
+*.dat
+
 .tmp_versions/
 modules.order
 Module.symvers
