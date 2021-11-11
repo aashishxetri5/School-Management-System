@@ -52,8 +52,8 @@ void viewGeneralRecord();
 //void UpdateRecord();
 //void DeleteRecord();
 void search();
-void searchRecordById();
-void searchRecordsByName();
+void searchRecordById(int);
+void searchRecordsByName(int);
 
 /* Variable Declaration */
 unsigned short int menuChoice, i;
@@ -451,6 +451,7 @@ void viewGeneralRecord(){
 }
 
 void search(){
+	int foundStatus = 0;
 	system("cls");
   	welcome();
 	printf("\n\t1. Search Record By Id");
@@ -460,10 +461,10 @@ void search(){
   	scanf("%d", &menuChoice);
 	switch(menuChoice){
   		case 1:
-  			searchRecordById();
+  			searchRecordById(foundStatus);
   			break;
   		case 2:
-  			searchRecordsByName();
+  			searchRecordsByName(foundStatus);
   			break;
   		case 0:
   			options();
@@ -477,7 +478,7 @@ void search(){
   	
 }
 
-void searchRecordById(){
+void searchRecordById(int foundStatus){
 	int idToSearch;
 	
 	printf("\n\tEnter ID to search record: ");
@@ -504,6 +505,7 @@ void searchRecordById(){
     			strcat(strcat(fullname, " "), person.last_name);
 				
 				if(idToSearch == person.id){
+					foundStatus = 1;
 					printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
 					person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
 				}
@@ -527,7 +529,7 @@ void searchRecordById(){
     			strcat(strcat(fullname, " "), person.last_name);
     			
 				if(idToSearch == person.id){
-			
+					foundStatus = 1;
 					printf("\n%-7d %-25s %-15lld %-35s %-15s %-13s %s", person.id, fullname, person.phone_num, person.email,
 					person.address, teacher.subject, person.entryDate);
 					
@@ -551,6 +553,7 @@ void searchRecordById(){
     			strcat(strcat(fullname, " "), person.last_name);
     			
 				if(idToSearch == person.id){
+					foundStatus = 1;
 					printf("\n%-7d %-25s %-15lld %-35s %-15s %s", person.id, fullname, person.phone_num, person.email,
 					person.address, person.entryDate);
 				}	
@@ -558,12 +561,17 @@ void searchRecordById(){
 		}
 	}
 	fclose(fptr);
+	
+	if(foundStatus == 0){
+  		printf("\n\tRecord Not Found!!!	");
+	}
+	
 	printf("\n\n\t");
 	system("pause");
 	options();
 }
 
-void searchRecordsByName(){
+void searchRecordsByName(int foundStatus){
 	char *nameToSearch = NULL;
 	
 	printf("\n\tEnter name to search record: ");
@@ -590,6 +598,7 @@ void searchRecordsByName(){
     			strcat(strcat(fullname, " "), person.last_name);
 				
 				if(!strcmp(nameToSearch, person.first_name) || !strcmp(nameToSearch, person.last_name) || !strcmp(nameToSearch, fullname)){
+					foundStatus = 1;
 					printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
 					person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
 				}
@@ -613,7 +622,7 @@ void searchRecordsByName(){
     			strcat(strcat(fullname, " "), person.last_name);
     			
 				if(!strcmp(nameToSearch, person.first_name) || !strcmp(nameToSearch, person.last_name) || !strcmp(nameToSearch, fullname)){
-			
+					foundStatus = 1;
 					printf("\n%-7d %-25s %-15lld %-35s %-15s %-13s %s", person.id, fullname, person.phone_num, person.email,
 					person.address, teacher.subject, person.entryDate);
 					
@@ -637,6 +646,7 @@ void searchRecordsByName(){
     			strcat(strcat(fullname, " "), person.last_name);
     			
 				if(!strcmp(nameToSearch, person.first_name) || !strcmp(nameToSearch, person.last_name) || !strcmp(nameToSearch, fullname)){
+					foundStatus = 1;
 					printf("\n%-7d %-25s %-15lld %-35s %-15s %s", person.id, fullname, person.phone_num, person.email,
 					person.address, person.entryDate);
 				}	
@@ -644,6 +654,11 @@ void searchRecordsByName(){
 		}
 	}
 	fclose(fptr);
+	
+	if(foundStatus == 0){
+  		printf("\n\tRecord Not Found!!!	");
+	}
+	
 	printf("\n\n\t");
 	system("pause");
 	options();
