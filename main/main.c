@@ -49,11 +49,13 @@ const char* chooseWhoseInfo();
 void entryDate();
 void addRecord();
 void viewGeneralRecord();
-//void UpdateRecord();
-//void DeleteRecord();
 void search();
 void searchRecordById(int);
 void searchRecordsByName(int);
+void updateRecord(); //Code not written yet.
+void deleteRecord();
+void deleteLoginRecord(FILE *, FILE *, int);
+void viewLoginInfo();
 
 /* Variable Declaration */
 unsigned short int menuChoice, i;
@@ -68,7 +70,6 @@ int main(){
 	- To set the width and height of window to 1200px and 650px respectively. 
 	- This code works in windows only.
 	*/
-	IsWindow()
 	HWND wh = GetConsoleWindow();
 	MoveWindow(wh, 40, 20, 1200, 650, TRUE);
 	
@@ -98,7 +99,7 @@ int main(){
 	return 0;
 }
 
-/* School mgmt system(Title) display msg. */
+/* School management system(Title) display message. */
 void welcome(){
 	system("cls");
     printf("\t School Management System\t\n");
@@ -120,7 +121,7 @@ void loginMenu(){
     scanf("%d", &menuChoice);
 }
 
-/* Main options of the system */
+/* Main menu of the system .*/
 void options(){
 	welcome();
 	
@@ -132,14 +133,15 @@ void options(){
 		printf("\t4. Delete Record\n");
 		printf("\t5. Search Record\n");
 		printf("\t6. Sort Records\n");
+		printf("\t7. View Login Information\n");
 	}
-	printf("\t7. Logout\n");
+	printf("\t8. Logout\n");
 	printf("\t0. Exit\n");
 	printf("\n\n\tEnter your choice: ");
 	scanf("%d", &menuChoice);
 
 	/* Prevents Students and Teachers from accessing Administrative Controls. */
-	if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 2 && menuChoice < 7)){
+	if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 2 && menuChoice < 8)){
 		printf("\n\tInvalid input...\n\t");
 		system("pause");
 		system("cls");
@@ -160,20 +162,21 @@ void options(){
 			printf("\tUpdate Record. ");
 			break;
 		case 3:
-			printf("\tAdd Record(s). ");
 			addRecord();
 			break;
 		case 4:
-			printf("\tDelete Record. ");
+			deleteRecord();
 			break;
 		case 5:
-			printf("\tSearch Record(s). ");
 			search();
 			break;
 		case 6:
 			printf("\tSort Record(s). ");
 			break;
 		case 7:
+			viewLoginInfo();
+			break;
+		case 8:
 			printf("\n\tLogging out...\n\t");
 			system("pause");
 			who = NULL;
@@ -295,7 +298,7 @@ void addRecord(){
 			*/
 			
 			fptr = fopen("Student/StudentLogin.dat", "ab");
-			fprintf(fptr, "%s%d\t%s\n", person.first_name, person.id, "1234567\0");
+			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "1234567\0");
 			
 		} else if(!strcmp("Teacher", whom)){
 			
@@ -312,7 +315,7 @@ void addRecord(){
 			*/
 			
 			fptr = fopen("Teacher/TeacherLogin.dat", "ab");
-			fprintf(fptr, "%d_%s\t%s\n", person.id, person.first_name, "qwertyu\0");
+			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "qwertyu\0");
 			
 		} else if(!strcmp("Administration", whom)){
 			
@@ -329,7 +332,7 @@ void addRecord(){
 			*/
 			
 			fptr = fopen("Administration/AdminLogin.dat", "ab");
-			fprintf(fptr, "%d_%s\t%s\n", person.id, person.first_name, "123asdf\0"); //make a function to get fname
+			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "123asdf\0"); //make a function to get fname
 			
 		}
 		fclose(fptr);
@@ -372,13 +375,12 @@ void entryDate(){
 	char entryDate[12];
 	time_t t = time(NULL);
 	struct tm dates = *localtime(&t);
-	sprintf(entryDate, "%02d/%02d/%04d", dates.tm_mon, dates.tm_mday, (dates.tm_year + 1900));
+	sprintf(entryDate, "%02d/%02d/%04d", (dates.tm_mon+1), dates.tm_mday, (dates.tm_year + 1900));
 	strcpy(person.entryDate, entryDate);
 }
 
 /* Displays all the data of respective category to the user. */
 void viewGeneralRecord(){
-	system("cls");
 	whom = chooseWhoseInfo();
 	system("cls");
 	printf("\n<== %s Record ==>\n\n", whom);
@@ -390,6 +392,7 @@ void viewGeneralRecord(){
 			printf("\n\t%s File Not Found!!!", whom);
 		} else {
 			printf("%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
+			printf("\n----------------------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 			&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
@@ -412,6 +415,7 @@ void viewGeneralRecord(){
 			printf("\n\t%s File Not Found!!!", whom);
 		} else {
 			printf("%-7s %-25s %-15s %-35s %-15s %-13s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Entry Date");
+			printf("\n--------------------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, teacher.subject, person.entryDate) != -1){
@@ -430,9 +434,10 @@ void viewGeneralRecord(){
 		fptr = fopen("Administration/AdministrationRecord.dat", "rb");
 		
 		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
+			printf("\t%s File Not Found!!!", whom);
 		} else {
 			printf("%-7s %-25s %-15s %-35s %-15s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Entry Date");
+			printf("\n------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, person.entryDate) != -1){
@@ -483,103 +488,108 @@ void search(){
   	
 }
 
-/* Lets Administrative user search record through id */
+/* Lets Administrative user search record through id. */
 void searchRecordById(int foundStatus){
 	int idToSearch;
 	
 	printf("\n\tEnter ID to search record: ");
 	scanf("%d", &idToSearch);
-	whom = chooseWhoseInfo();
 	
-	system("cls");
-	welcome();
+	if(idToSearch <= 0){
+		printf("\n\tPlease enter a valid Id!!!");
+		
+	} else {
 	
-	if(!strcmp("Student", whom)) {
+		whom = chooseWhoseInfo();
+		system("cls");
+		welcome();
+	
+		if(!strcmp("Student", whom)) {
 		
-		fptr = fopen("Student/StudentRecord.dat", "rb");
+			fptr = fopen("Student/StudentRecord.dat", "rb");
 		
-		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
-		} else {
-			printf("\n%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
+			if(fptr == NULL){
+				printf("\n\t%s File Not Found!!!", whom);
+			} else {
+				printf("\n%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
 			
-			while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
-			&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
-			person.address, person.entryDate) != -1){
+				while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+				&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
+				person.address, person.entryDate) != -1){
 				
-				fullname = person.first_name;
-    			strcat(strcat(fullname, " "), person.last_name);
 				
-				if(idToSearch == person.id){
-					foundStatus = 1;
-					printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
-					person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
-					break;
+					if(idToSearch == person.id){
+						fullname = person.first_name;
+    					strcat(strcat(fullname, " "), person.last_name);
+						printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
+						person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
+						foundStatus = 1;
+						break;
+					}
+				}
+			}
+		
+		} else if(!strcmp("Teacher", whom)) {
+		
+			fptr = fopen("Teacher/TeacherRecord.dat", "rb");
+		
+			if(fptr == NULL){
+				printf("\n\t%s File Not Found!!!", whom);
+			} else {
+			
+				printf("\n%-7s %-25s %-15s %-35s %-15s %-13s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Entry Date");
+		
+				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
+				person.email, person.address, teacher.subject, person.entryDate) != -1){
+		
+    			
+					if(idToSearch == person.id){
+						fullname = person.first_name;
+    					strcat(strcat(fullname, " "), person.last_name);
+						printf("\n%-7d %-25s %-15lld %-35s %-15s %-13s %s", person.id, fullname, person.phone_num, person.email,
+						person.address, teacher.subject, person.entryDate);
+						foundStatus = 1;
+						break;	
+					}
+				}
+			}
+		
+		} else if(!strcmp("Administration", whom)) {
+		
+			fptr = fopen("Administration/AdministrationRecord.dat", "rb");
+		
+			if(fptr == NULL){
+				printf("\n\t%s File Not Found!!!", whom);
+			} else {
+				printf("\n%-7s %-25s %-15s %-35s %-15s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Entry Date");
+			
+				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
+				person.email, person.address, person.entryDate) != -1){
+				
+    			
+					if(idToSearch == person.id){
+						fullname = person.first_name;
+    					strcat(strcat(fullname, " "), person.last_name);
+						printf("\n%-7d %-25s %-15lld %-35s %-15s %s", person.id, fullname, person.phone_num, person.email,
+						person.address, person.entryDate);
+						foundStatus = 1;
+						break;
+					}	
 				}
 			}
 		}
-		
-	} else if(!strcmp("Teacher", whom)) {
-		
-		fptr = fopen("Teacher/TeacherRecord.dat", "rb");
-		
-		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
-		} else {
-			
-			printf("\n%-7s %-25s %-15s %-35s %-15s %-13s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Entry Date");
-			
-			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
-			person.email, person.address, teacher.subject, person.entryDate) != -1){
-		
-				fullname = person.first_name;
-    			strcat(strcat(fullname, " "), person.last_name);
-    			
-				if(idToSearch == person.id){
-					foundStatus = 1;
-					printf("\n%-7d %-25s %-15lld %-35s %-15s %-13s %s", person.id, fullname, person.phone_num, person.email,
-					person.address, teacher.subject, person.entryDate);
-					break;	
-				}
-			}
-		}
-		
-	} else if(!strcmp("Administration", whom)) {
-		
-		fptr = fopen("Administration/AdministrationRecord.dat", "rb");
-		
-		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
-		} else {
-			printf("\n%-7s %-25s %-15s %-35s %-15s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Entry Date");
-			
-			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
-			person.email, person.address, person.entryDate) != -1){
-				
-				fullname = person.first_name;
-    			strcat(strcat(fullname, " "), person.last_name);
-    			
-				if(idToSearch == person.id){
-					foundStatus = 1;
-					printf("\n%-7d %-25s %-15lld %-35s %-15s %s", person.id, fullname, person.phone_num, person.email,
-					person.address, person.entryDate);
-					break;
-				}	
-			}
+		fclose(fptr);
+	
+		if(foundStatus == 0){
+	  		printf("\n\tRecord Not Found!!!	");
 		}
 	}
-	fclose(fptr);
-	
-	if(foundStatus == 0){
-  		printf("\n\tRecord Not Found!!!	");
-	}
-	
 	printf("\n\n\t");
 	system("pause");
 	options();
 }
 
-/* Lets Administrative user search record(s) through name */
+/* Lets Administrative user search record(s) through name. !There's Some error in this function's code */
 void searchRecordsByName(int foundStatus){
 	char *nameToSearch = NULL;
 	
@@ -673,6 +683,227 @@ void searchRecordsByName(int foundStatus){
 	options();
 }
 
+/* Lets Administrative user update record using id. 
+!!Code not written for this yet.
+*/
+void updateRecord(){
+	
+}
+
+/* Lets Administrative user delete record using id. */
+void deleteRecord(){
+	int deleteId, isDeleted = 0;
+	printf("\n\tEnter id of the record to be deleted: ");
+	scanf("%d", &deleteId);
+		
+	if(deleteId <= 0){
+		printf("\n\tPlease enter a valid Id!!!");
+		
+	} else {
+	
+		whom = chooseWhoseInfo();
+		
+		FILE *tempFptr = NULL;
+		if(!strcmp("Student", whom)) {
+		
+			fptr = fopen("Student/StudentRecord.dat", "rb");
+			tempFptr = fopen("Student/TempRec.dat", "ab");
+			
+			if(fptr == NULL) {
+				
+				printf("\n\tNo such record was found!!");
+				
+			} else {
+			
+				while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+				&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
+				person.address, person.entryDate) != -1) {
+				
+					if(deleteId == person.id) {
+						isDeleted = 1;
+						continue;
+					} else {
+						fprintf(tempFptr, "%d\t%s %s\t%lu\t%lld\t%s\t%lu/%lu/%lu\t%s\t%s\n", person.id, person.first_name, 
+						person.last_name, student.grade, person.phone_num, person.email, student.date.month, student.date.day,
+						student.date.year, person.address, person.entryDate);
+					}
+				}
+				fclose(fptr);
+				fclose(tempFptr);
+				fptr = fopen("Student/StudentLogin.dat", "rb");
+				tempFptr = fopen("Student/TempLogin.dat", "ab");
+			
+				deleteLoginRecord(fptr, tempFptr, deleteId);
+				
+				fclose(fptr);
+				fclose(tempFptr);
+		
+				remove("Student/StudentRecord.dat"); //Deletes StudentRecord.dat file
+				remove("Student/StudentLogin.dat"); //Deletes StudentLogin.dat file
+				
+				/*
+				* Renames TempRec.dat file to StudentRecord.dat
+				* Renames TempLogin.dat file to StudentLogin.dat
+				*/
+				rename("Student/TempRec.dat", "Student/StudentRecord.dat");
+				rename("Student/TempLogin.dat", "Student/StudentLogin.dat");
+			}
+		
+		} else if(!strcmp("Teacher", whom)) {
+		
+			fptr = fopen("Teacher/TeacherRecord.dat", "rb");
+			tempFptr = fopen("Teacher/TempRec.dat", "ab");
+			
+			if(fptr == NULL) {
+				
+				printf("\n\tNo such record was found!!");
+				
+			} else {
+				/* Reads data from TeacherRecord.dat file and writes it in TempRec.dat file */
+				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, 
+				&person.phone_num, person.email, person.address, teacher.subject, person.entryDate) != -1) {
+    			
+					if(deleteId == person.id) {
+						isDeleted = 1;
+						continue;
+					} else {
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", person.id, person.first_name, person.last_name, 
+						person.phone_num, person.email, person.address, teacher.subject, person.entryDate);
+					}
+				}
+				
+				fclose(fptr);
+				fclose(tempFptr);
+				
+				fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+				tempFptr = fopen("Teacher/TempLogin.dat", "ab");
+			
+				/* Reads data from TeacherLogin.dat file and writes it in TempLogin.dat file */
+				deleteLoginRecord(fptr, tempFptr, deleteId);
+				
+				fclose(fptr);
+				fclose(tempFptr);
+		
+				/* Removes 'TeacherRecord.dat' and 'TeacherLogin.dat' files. */
+				remove("Teacher/TeacherRecord.dat");
+				remove("Teacher/TeacherLogin.dat");
+				
+				/* Renames 'TempRec.dat' file to 'TeacherRecord.dat' and 'TempLogin.dat' file to 'TeacherLogin.dat' file. */
+				rename("Teacher/TempRec.dat", "Teacher/TeacherRecord.dat");
+				rename("Teacher/TempLogin.dat", "Teacher/TeacherLogin.dat");
+			}
+		
+		} else if(!strcmp("Administration", whom)) {
+		
+			fptr = fopen("Administration/AdministrationRecord.dat", "rb");
+			tempFptr = fopen("Administration/TempRec.dat", "ab");
+			
+			if(fptr == NULL) {
+				
+				printf("\n\tNo such record was found!!");
+				
+			} else {
+				/* Reads data from AdministrationRecord.dat file and writes it in TempRec.dat file */
+				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, 
+				&person.phone_num, person.email, person.address, person.entryDate) != -1) {
+    			
+					if(deleteId == person.id) {
+						isDeleted = 1;
+						continue;
+					} else {
+						
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", person.id, person.first_name, person.last_name,
+						person.phone_num, person.email, person.address, person.entryDate);
+						
+					}
+				}
+				fclose(fptr);
+				fclose(tempFptr);
+				
+				fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+				tempFptr = fopen("Administration/TempLogin.dat", "ab");
+				
+				/* Reads data from AdministrationLogin.dat file and writes it in TempLogin.dat file. */
+				deleteLoginRecord(fptr, tempFptr, deleteId);
+				
+				fclose(fptr);
+				fclose(tempFptr);
+				/* Deletes 'AdministrationRecord.dat' and 'AdministrationLogin.dat' files. */
+				remove("Administration/AdministrationRecord.dat");
+				remove("Administration/AdministrationLogin.dat");
+				
+				/* Renames 'TempRec.dat' file to 'AdministrationRecord.dat' and 'TempLogin.dat' file to 'AdministrationLogin.dat' file. */
+				rename("Administration/TempRec.dat", "Administration/AdministrationRecord.dat");
+				rename("Administration/TempLogin.dat", "Administration/AdministrationLogin.dat");
+			}
+		}
+	
+		if(isDeleted) {
+			printf("\n\tRecord Deleted Successfully..\n\n\t");
+		} else {
+			printf("\n\tProblem deleing the Record!! PLease make sure the entered Id is correct.\n\n\t");
+		}
+	
+	}
+	
+	system("pause");
+	options();
+	
+}
+
+void deleteLoginRecord(FILE *fileptr, FILE *tempFileptr, int deleteId){
+	
+	while(fscanf(fileptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+					
+		if(deleteId == person.id) {
+			continue;
+		} else {
+			fprintf(tempFileptr, "%d\t%s\t%s\n", person.id, person.username, person.password);
+		}	
+	}
+}
+
+/* Lets Administrative user view login information of all category of users. */
+void viewLoginInfo(){
+	
+	whom = chooseWhoseInfo();
+	system("cls");
+	printf("\n<== %s Login Record ==>\n\n", whom);
+	
+	printf("\t%-10s %-20s %s", "ID", "Username", "Password");
+	printf("\n\t-----------------------------------------");
+	
+	if(!strcmp("Student", whom)) {
+		
+		fptr = fopen("Student/StudentLogin.dat", "rb");
+		
+	} else if(!strcmp("Teacher", whom)) {
+		
+		fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+		
+	} else if(!strcmp("Administration", whom)) {
+		
+		fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+		
+	}
+	
+	if(fptr == NULL){
+			printf("\n\tRequested File Not Found!!!");
+	} else {
+		
+		while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+			printf("\n\t%-10d %-20s %s", person.id, person.username, person.password);	
+		}
+		
+	}
+	
+	
+	fclose(fptr);
+	printf("\n\n\t");
+	system("pause");
+	options();
+	
+}	
 
 
 
