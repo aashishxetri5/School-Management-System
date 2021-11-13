@@ -66,8 +66,9 @@ FILE *fptr = NULL;
 int main(){
 	/*
 	- To set the width and height of window to 1200px and 650px respectively. 
-	- This code in windows only.
+	- This code works in windows only.
 	*/
+	IsWindow()
 	HWND wh = GetConsoleWindow();
 	MoveWindow(wh, 40, 20, 1200, 650, TRUE);
 	
@@ -224,6 +225,7 @@ void login(){
     }
 }
 
+/* Takes required data with the user and saves it to the respective file. */
 void addRecord(){
 	system("cls");
 	char userResponse;
@@ -342,7 +344,7 @@ void addRecord(){
 	}
 }
 
-//To determine whose record is to be added.
+/* Lets user determine whose record is to be played with and returns respective String. */
 const char* chooseWhoseInfo() {
 	char choice;
 	printf("\n\tEnter whose info do you want to enter\n\tstudent(s)\tteacher(t)\tAdministration(a)\t");
@@ -365,6 +367,7 @@ const char* chooseWhoseInfo() {
   	}
 }
 
+/* Sets date of the entry time to entryDate memeber of Person structure. */
 void entryDate(){
 	char entryDate[12];
 	time_t t = time(NULL);
@@ -373,6 +376,7 @@ void entryDate(){
 	strcpy(person.entryDate, entryDate);
 }
 
+/* Displays all the data of respective category to the user. */
 void viewGeneralRecord(){
 	system("cls");
 	whom = chooseWhoseInfo();
@@ -450,6 +454,7 @@ void viewGeneralRecord(){
 	
 }
 
+/* Lets Administrative user choose where to search by name or by id or return back to main menu. */
 void search(){
 	int foundStatus = 0;
 	system("cls");
@@ -478,6 +483,7 @@ void search(){
   	
 }
 
+/* Lets Administrative user search record through id */
 void searchRecordById(int foundStatus){
 	int idToSearch;
 	
@@ -508,6 +514,7 @@ void searchRecordById(int foundStatus){
 					foundStatus = 1;
 					printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
 					person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
+					break;
 				}
 			}
 		}
@@ -532,7 +539,7 @@ void searchRecordById(int foundStatus){
 					foundStatus = 1;
 					printf("\n%-7d %-25s %-15lld %-35s %-15s %-13s %s", person.id, fullname, person.phone_num, person.email,
 					person.address, teacher.subject, person.entryDate);
-					
+					break;	
 				}
 			}
 		}
@@ -556,6 +563,7 @@ void searchRecordById(int foundStatus){
 					foundStatus = 1;
 					printf("\n%-7d %-25s %-15lld %-35s %-15s %s", person.id, fullname, person.phone_num, person.email,
 					person.address, person.entryDate);
+					break;
 				}	
 			}
 		}
@@ -571,6 +579,7 @@ void searchRecordById(int foundStatus){
 	options();
 }
 
+/* Lets Administrative user search record(s) through name */
 void searchRecordsByName(int foundStatus){
 	char *nameToSearch = NULL;
 	
