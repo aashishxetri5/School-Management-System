@@ -253,10 +253,10 @@ void addRecord(){
 		scanf(" %s", &person.last_name);
 				
 		if(!strcmp("Student", whom)){
-			printf("\n\tEnter the grade: ");
+			printf("\n\tEnter the grade(numerical value): ");
 			scanf("%hu", &student.grade);
 
-			printf("\n\tEnter the Date Of Birth(MM/DD/YYYY): ");
+			printf("\n\tEnter the Date Of Birth in AD(MM/DD/YYYY): ");
 			scanf("%hu/%hu/%hu", &student.date.month, &student.date.day, &student.date.year);
 			
 			if(student.date.day > 31 || student.date.month > 12 || (student.date.year < 1920 || student.date.year >= 2021)){
@@ -274,7 +274,7 @@ void addRecord(){
 		printf("\n\tEnter the contact number: ");
 		scanf("%lld", &person.phone_num);
 		
-		printf("\n\tEnter the email(max. 30 characters, , no spaces): ");
+		printf("\n\tEnter the email(max. 30 characters, no spaces): ");
 		scanf(" %s", &person.email);
 		
 		entryDate();
@@ -349,7 +349,8 @@ void addRecord(){
 /* Lets user determine whose record is to be played with and returns respective String. */
 const char* chooseWhoseInfo() {
 	char choice;
-	printf("\n\tEnter whose info do you want to enter\n\tstudent(s)\tteacher(t)\tAdministration(a)\t");
+	printf("\n\tEnter whose info do you want to enter\n\tstudent(s)\tteacher(t)\tadministration(a)");
+	printf("\n\tEnter your choice: ");
   	scanf(" %c", &choice);
 	switch(choice){
   		case 's':
