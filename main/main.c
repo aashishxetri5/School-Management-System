@@ -254,11 +254,10 @@ void addRecord(){
 				
 		if(!strcmp("Student", whom)){
 			printf("\n\tEnter the grade: ");
-			scanf("%lu", &student.grade);
-			printf("\tGrade: %lu", student.grade);
+			scanf("%hu", &student.grade);
 
 			printf("\n\tEnter the Date Of Birth(MM/DD/YYYY): ");
-			scanf("%lu/%lu/%lu", &student.date.month, &student.date.day, &student.date.year);
+			scanf("%hu/%hu/%hu", &student.date.month, &student.date.day, &student.date.year);
 			
 			if(student.date.day > 31 || student.date.month > 12 || (student.date.year < 1920 || student.date.year >= 2021)){
 				printf("\n\n\tEntered date is invalid!!!\n\t");
@@ -286,7 +285,7 @@ void addRecord(){
 		if(!strcmp("Student", whom)){
 			fptr = fopen("Student/StudentRecord.dat", "ab");
 		
-			fprintf(fptr, "%d\t%s %s\t%lu\t%lld\t%s\t%lu/%lu/%lu\t%s\t%s\n", person.id, person.first_name, person.last_name,
+			fprintf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", person.id, person.first_name, person.last_name,
 			student.grade, person.phone_num, person.email, student.date.month, student.date.day, student.date.year, person.address,
 			person.entryDate);
 			
@@ -331,7 +330,7 @@ void addRecord(){
 			 | ID | Full Name | Ph-Num | E-mail | Address | Entry Date |
 			*/
 			
-			fptr = fopen("Administration/AdminLogin.dat", "ab");
+			fptr = fopen("Administration/AdministrationLogin.dat", "ab");
 			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "123asdf\0"); //make a function to get fname
 			
 		}
@@ -394,14 +393,14 @@ void viewGeneralRecord(){
 			printf("%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
 			printf("\n----------------------------------------------------------------------------------------------------------------------------------");
 			
-			while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+			while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 			&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
 			person.address, person.entryDate) != -1){
 			
 				fullname = person.first_name;
     			strcat(strcat(fullname, " "), person.last_name);
 			
-				printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
+				printf("\n%-7d %-24s %-7hu %-15lld %-30s %02hu/%02hu/%-5hu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
 				person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
 							
 			}
@@ -512,8 +511,9 @@ void searchRecordById(int foundStatus){
 				printf("\n\t%s File Not Found!!!", whom);
 			} else {
 				printf("\n%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
-			
-				while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+				printf("\n----------------------------------------------------------------------------------------------------------------------------------");
+				
+				while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 				&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
 				person.address, person.entryDate) != -1){
 				
@@ -521,7 +521,7 @@ void searchRecordById(int foundStatus){
 					if(idToSearch == person.id){
 						fullname = person.first_name;
     					strcat(strcat(fullname, " "), person.last_name);
-						printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
+						printf("\n%-7d %-24s %-7hu %-15lld %-30s %02hu/%02hu/%-5hu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
 						person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
 						foundStatus = 1;
 						break;
@@ -538,7 +538,8 @@ void searchRecordById(int foundStatus){
 			} else {
 			
 				printf("\n%-7s %-25s %-15s %-35s %-15s %-13s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Entry Date");
-		
+				printf("\n--------------------------------------------------------------------------------------------------------------------------------");
+				
 				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 				person.email, person.address, teacher.subject, person.entryDate) != -1){
 		
@@ -562,7 +563,8 @@ void searchRecordById(int foundStatus){
 				printf("\n\t%s File Not Found!!!", whom);
 			} else {
 				printf("\n%-7s %-25s %-15s %-35s %-15s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Entry Date");
-			
+				printf("\n------------------------------------------------------------------------------------------------------------------");
+				
 				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 				person.email, person.address, person.entryDate) != -1){
 				
@@ -608,8 +610,9 @@ void searchRecordsByName(int foundStatus){
 			printf("\n\t%s File Not Found!!!", whom);
 		} else {
 			printf("\n%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
-		
-			while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+			printf("\n----------------------------------------------------------------------------------------------------------------------------------");
+			
+			while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 			&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
 			person.address, person.entryDate) != -1){
 				
@@ -618,7 +621,7 @@ void searchRecordsByName(int foundStatus){
 				
 				if(!strcmp(nameToSearch, person.first_name) || !strcmp(nameToSearch, person.last_name) || !strcmp(nameToSearch, fullname)){
 					foundStatus = 1;
-					printf("\n%-7d %-24s %-7d %-15lld %-30s %02lu/%02lu/%-5lu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
+					printf("\n%-7d %-24s %-7hu %-15lld %-30s %02hu/%02hu/%-5hu  %-15s  %s", person.id, fullname, student.grade, person.phone_num,
 					person.email, student.date.month, student.date.day, student.date.year, person.address, person.entryDate);
 				}
 			}
@@ -633,6 +636,7 @@ void searchRecordsByName(int foundStatus){
 		} else {
 			
 			printf("\n%-7s %-25s %-15s %-35s %-15s %-13s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Entry Date");
+			printf("\n--------------------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, teacher.subject, person.entryDate) != -1){
@@ -657,6 +661,7 @@ void searchRecordsByName(int foundStatus){
 			printf("\n\t%s File Not Found!!!", whom);
 		} else {
 			printf("\n%-7s %-25s %-15s %-35s %-15s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Entry Date");
+			printf("\n------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, person.entryDate) != -1){
@@ -723,7 +728,7 @@ void deleteRecord(){
 						isDeleted = 1;
 						continue;
 					} else {
-						fprintf(tempFptr, "%d\t%s %s\t%lu\t%lld\t%s\t%lu/%lu/%lu\t%s\t%s\n", person.id, person.first_name, 
+						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", person.id, person.first_name, 
 						person.last_name, student.grade, person.phone_num, person.email, student.date.month, student.date.day,
 						student.date.year, person.address, person.entryDate);
 					}
@@ -894,9 +899,7 @@ void viewLoginInfo(){
 		while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
 			printf("\n\t%-10d %-20s %s", person.id, person.username, person.password);	
 		}
-		
 	}
-	
 	
 	fclose(fptr);
 	printf("\n\n\t");
