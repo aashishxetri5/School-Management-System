@@ -48,6 +48,7 @@ void login();
 const char* chooseWhoseInfo();
 void entryDate();
 void addRecord();
+int isValidDate(unsigned short int, unsigned short int, unsigned short int);
 void viewGeneralRecord();
 void search();
 void searchRecordById(int);
@@ -255,14 +256,23 @@ void addRecord(){
 		if(!strcmp("Student", whom)){
 			printf("\n\tEnter the grade(numerical value): ");
 			scanf("%hu", &student.grade);
-
+			printf("Grade: %hu", student.grade);
 			printf("\n\tEnter the Date Of Birth in AD(MM/DD/YYYY): ");
 			scanf("%hu/%hu/%hu", &student.date.month, &student.date.day, &student.date.year);
+			printf("Month: %hu", student.date.month);
 			
-			if(student.date.day > 31 || student.date.month > 12 || (student.date.year < 1920 || student.date.year >= 2021)){
-				printf("\n\n\tEntered date is invalid!!!\n\t");
+			if((student.date.day > 0 && student.date.day <= 31) && (student.date.month > 0 && student.date.month <= 12) && 
+			(student.date.year >= 1920 && student.date.year <= 2022)) {
+				
+				if (!isValidDate(student.date.month, student.date.day, student.date.year)) {
+					printf("\n\n\tEntered date is invalid!!!\n\t");
+					system("pause");
+					addRecord();
+        		}
+			
+			}else{
 				system("pause");
-				addRecord();
+				printf("\n\n\tEntered date is invalid!!!\n\t");
 			}
 		} else 	if(!strcmp("Teacher", whom)){
 			printf("\n\tEnter the subject: ");
@@ -344,6 +354,21 @@ void addRecord(){
 			break;
 		}
 	}
+}
+
+/* Validates DoB of student. */
+int isValidDate(unsigned short int month, unsigned short int day, unsigned short int year){
+	if (month == 2 && day == 29 && (year%400==0 || (year%100 != 0 && year%4 == 0))) { //if user has entered feb 29 as DoB this checks if entered year is leap year or not.
+        return 1;
+    } else if ((month == 4 || month == 6 || month == 9 || month == 11) &&  day <= 30) { //checking month with 30 days only.
+        return 1;
+    } else if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) &&  day <= 31) { //checking months with 31 days.
+        return 1;
+    } else if(month == 2 && day <= 28){ //checking if feb has more than 28 days on normal years. if yes, it would switch to else block.
+        return 1;
+    } else {
+        return 0;
+    }	
 }
 
 /* Lets user determine whose record is to be played with and returns respective String. */
