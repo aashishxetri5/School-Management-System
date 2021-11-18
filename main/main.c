@@ -54,7 +54,7 @@ void search();
 void searchRecordById(int);
 void searchRecordsByName(int);
 void updateRecord(); //Code not written yet!
-void updateLoginRecord(FILE *, FILE *); //Code not written yet!
+void updateLoginRecord(FILE *, FILE *, struct Person, int); //Code not written yet!
 void deleteRecord();
 void deleteLoginRecord(FILE *, FILE *, int);
 void viewLoginInfo();
@@ -91,7 +91,7 @@ int main(){
         who = "Administration";
         login();
         break;
-    case 4:
+    case 0:
     	printf("\n\tExiting Program...");
     	exit(0);
     default:
@@ -118,7 +118,7 @@ void loginMenu(){
 	printf("\n\t1. Student Login.");
     printf("\n\t2. Teacher Login.");
     printf("\n\t3. Accounts Login.");
-    printf("\n\t4. Exit.\n");
+    printf("\n\t0. Exit.\n");
     printf("\n\tEnter your choice: ");
     scanf("%d", &menuChoice);
 }
@@ -162,6 +162,7 @@ void options(){
 			break;
 		case 2:
 			printf("\tUpdate Record. ");
+			updateRecord();
 			break;
 		case 3:
 			addRecord();
@@ -718,7 +719,215 @@ void searchRecordsByName(int foundStatus){
 !!Code not written for this yet.
 */
 void updateRecord(){
+	int updateId, isUpdated = 0;
+	printf("\n\tEnter id of the record to be updated: ");
+	scanf("%d", &updateId);
 	
+	if(updateId <= 0){
+		printf("\n\tPlease enter a valid Id!!!\n\t");
+		
+	} else {
+		struct Person p1;
+		struct Student s1;
+		struct Teacher t1;
+		whom = chooseWhoseInfo();
+	
+		printf("\n\tEnter the first name(max. 16 characters, no spaces): ");
+		scanf(" %s", &p1.first_name);
+
+		printf("\n\tEnter the last name(max. 16 characters, no spaces): ");
+		scanf(" %s", &p1.last_name);
+				
+		if(!strcmp("Student", whom)){
+			printf("\n\tEnter the grade(numerical value): ");
+			scanf("%hu", &s1.grade);
+	
+			printf("\n\tEnter the Date Of Birth in AD(MM/DD/YYYY): ");
+			scanf("%hu/%hu/%hu", &s1.date.month, &s1.date.day, &s1.date.year);
+			
+			if((s1.date.day > 0 && s1.date.day <= 31) && (s1.date.month > 0 && s1.date.month <= 12) && 
+			(s1.date.year >= 1920 && s1.date.year <= 2022)) {
+				
+				if (!isValidDate(s1.date.month, s1.date.day, s1.date.year)) {
+					printf("\n\n\tEntered date is invalid!!!\n\t");
+					system("pause");
+					options();
+        		}
+			
+			}else{
+				system("pause");
+				printf("\n\n\tEntered date is invalid!!!\n\t");
+			}
+		} else 	if(!strcmp("Teacher", whom)){
+			printf("\n\tEnter the subject: ");
+			scanf(" %s", &t1.subject);
+		}
+	
+		printf("\n\tEnter the address(max. 30 characters, no spaces): ");
+		scanf(" %s", &p1.address);
+		
+		printf("\n\tEnter the contact number: ");
+		scanf("%lld", &p1.phone_num);
+		
+		printf("\n\tEnter the email(max. 30 characters, no spaces): ");
+		scanf(" %s", &p1.email);
+		
+		entryDate();
+		
+		FILE *tempFptr = NULL;
+		if(!strcmp("Student", whom)) {
+		
+			fptr = fopen("Student/StudentRecord.dat", "rb");
+			tempFptr = fopen("Student/TempRec.dat", "ab");
+			
+			if(fptr == NULL) {
+				
+				printf("\n\tNo such record was found!!");
+				
+			} else {
+			
+				while(fscanf(fptr, "%d\t%s %s\t%d\t%lld\t%s\t%d/%d/%d\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+				&student.grade, &person.phone_num, person.email, &student.date.month, &student.date.day, &student.date.year,
+				person.address, person.entryDate) != -1) {
+				
+					if(updateId == person.id) {
+						isUpdated = 1;
+						printf("\n\n\tfound!!");
+						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", p1.id, p1.first_name, 
+						p1.last_name, s1.grade, p1.phone_num, p1.email, s1.date.month, s1.date.day,
+						s1.date.year, p1.address, person.entryDate);
+					} else {
+						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", person.id, person.first_name, 
+						person.last_name, student.grade, person.phone_num, person.email, student.date.month, student.date.day,
+						student.date.year, person.address, person.entryDate);
+					}
+				}
+				fclose(fptr);
+				fclose(tempFptr);
+				fptr = fopen("Student/StudentLogin.dat", "rb");
+				tempFptr = fopen("Student/TempLogin.dat", "ab");
+				
+				updateLoginRecord(fptr, tempFptr, p1, updateId);
+				
+				fclose(fptr);
+				fclose(tempFptr);
+		
+				remove("Student/StudentRecord.dat"); //Deletes StudentRecord.dat file
+				remove("Student/StudentLogin.dat"); //Deletes StudentLogin.dat file
+				
+				/*
+				* Renames TempRec.dat file to StudentRecord.dat
+				* Renames TempLogin.dat file to StudentLogin.dat
+				*/
+				rename("Student/TempRec.dat", "Student/StudentRecord.dat");
+				rename("Student/TempLogin.dat", "Student/StudentLogin.dat");
+			}
+		
+		} else if(!strcmp("Teacher", whom)) {
+		
+			fptr = fopen("Teacher/TeacherRecord.dat", "rb");
+			tempFptr = fopen("Teacher/TempRec.dat", "ab");
+			
+			if(fptr == NULL) {
+				
+				printf("\n\tNo such record was found!!");
+				
+			} else {
+				/* Reads data from TeacherRecord.dat file and writes it in TempRec.dat file */
+				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, 
+				&person.phone_num, person.email, person.address, teacher.subject, person.entryDate) != -1) {
+    			
+					if(updateId == person.id) {
+						isUpdated = 1;
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", p1.id, p1.first_name, p1.last_name, 
+						p1.phone_num, p1.email, p1.address, t1.subject, person.entryDate);
+					} else {
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%s\n", person.id, person.first_name, person.last_name, 
+						person.phone_num, person.email, person.address, teacher.subject, person.entryDate);
+					}
+				}
+				
+				fclose(fptr);
+				fclose(tempFptr);
+				
+				fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+				tempFptr = fopen("Teacher/TempLogin.dat", "ab");
+			
+				/* Reads data from TeacherLogin.dat file and writes it in TempLogin.dat file */
+				updateLoginRecord(fptr, tempFptr, p1, updateId);
+				
+				fclose(fptr);
+				fclose(tempFptr);
+		
+				/* Removes 'TeacherRecord.dat' and 'TeacherLogin.dat' files. */
+				remove("Teacher/TeacherRecord.dat");
+				remove("Teacher/TeacherLogin.dat");
+				
+				/* Renames 'TempRec.dat' file to 'TeacherRecord.dat' and 'TempLogin.dat' file to 'TeacherLogin.dat' file. */
+				rename("Teacher/TempRec.dat", "Teacher/TeacherRecord.dat");
+				rename("Teacher/TempLogin.dat", "Teacher/TeacherLogin.dat");
+			}
+		
+		} else if(!strcmp("Administration", whom)) {
+		
+			fptr = fopen("Administration/AdministrationRecord.dat", "rb");
+			tempFptr = fopen("Administration/TempRec.dat", "ab");
+			
+			if(fptr == NULL) {
+				
+				printf("\n\tNo such record was found!!");
+				
+			} else {
+				/* Reads data from AdministrationRecord.dat file and writes it in TempRec.dat file */
+				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", &person.id, person.first_name, person.last_name, 
+				&person.phone_num, person.email, person.address, person.entryDate) != -1) {
+    			
+					if(updateId == person.id) {
+						isUpdated = 1;
+						printf("\n\n\tfound!!");
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", p1.id, p1.first_name, p1.last_name,
+						p1.phone_num, p1.email, p1.address, person.entryDate);
+					} else {
+						
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\n", person.id, person.first_name, person.last_name,
+						person.phone_num, person.email, person.address, person.entryDate);
+						
+					}
+				}
+				fclose(fptr);
+				fclose(tempFptr);
+				
+				fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+				tempFptr = fopen("Administration/TempLogin.dat", "ab");
+				
+				/* Reads data from AdministrationLogin.dat file and writes it in TempLogin.dat file. */
+				updateLoginRecord(fptr, tempFptr, p1, updateId);
+				
+				fclose(fptr);
+				fclose(tempFptr);
+				/* Deletes 'AdministrationRecord.dat' and 'AdministrationLogin.dat' files. */
+				remove("Administration/AdministrationRecord.dat");
+				remove("Administration/AdministrationLogin.dat");
+				
+				/* Renames 'TempRec.dat' file to 'AdministrationRecord.dat' and 'TempLogin.dat' file to 'AdministrationLogin.dat' file. */
+				rename("Administration/TempRec.dat", "Administration/AdministrationRecord.dat");
+				rename("Administration/TempLogin.dat", "Administration/AdministrationLogin.dat");
+			}
+		}
+		
+	}
+
+}
+
+void updateLoginRecord(FILE *fileptr, FILE *tempFileptr, struct Person p1, int updateId){
+	while(fscanf(fileptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+					
+		if(updateId == person.id) {
+			fprintf(tempFileptr, "%d\t%s\t%s\n", p1.id, p1.username, p1.password);
+		} else {
+			fprintf(tempFileptr, "%d\t%s\t%s\n", person.id, person.username, person.password);
+		}	
+	}
 }
 
 /* Lets Administrative user delete record using id. */
