@@ -53,7 +53,8 @@ void viewGeneralRecord();
 void search();
 void searchRecordById(int);
 void searchRecordsByName(int);
-void updateRecord(); //Code not written yet.
+void updateRecord(); //Code not written yet!
+void updateLoginRecord(FILE *, FILE *); //Code not written yet!
 void deleteRecord();
 void deleteLoginRecord(FILE *, FILE *, int);
 void viewLoginInfo();
@@ -256,10 +257,9 @@ void addRecord(){
 		if(!strcmp("Student", whom)){
 			printf("\n\tEnter the grade(numerical value): ");
 			scanf("%hu", &student.grade);
-			printf("Grade: %hu", student.grade);
+	
 			printf("\n\tEnter the Date Of Birth in AD(MM/DD/YYYY): ");
 			scanf("%hu/%hu/%hu", &student.date.month, &student.date.day, &student.date.year);
-			printf("Month: %hu", student.date.month);
 			
 			if((student.date.day > 0 && student.date.day <= 31) && (student.date.month > 0 && student.date.month <= 12) && 
 			(student.date.year >= 1920 && student.date.year <= 2022)) {
@@ -728,7 +728,7 @@ void deleteRecord(){
 	scanf("%d", &deleteId);
 		
 	if(deleteId <= 0){
-		printf("\n\tPlease enter a valid Id!!!");
+		printf("\n\tPlease enter a valid Id!!!\n\t");
 		
 	} else {
 	
