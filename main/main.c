@@ -5,12 +5,8 @@
 #include <windows.h> //for opening the output window in custom height and width.
 #include <time.h> //for entry date.
 
-/* Constant Declaration */
-#define YES 1
-#define NO 0
-
 /* Structure Declaration */
-typedef struct{
+ typedef struct{
 	unsigned short int day;
 	unsigned short int month;
 	unsigned short int year;
@@ -53,8 +49,7 @@ void viewGeneralRecord();
 void search();
 void searchRecordById(int);
 void searchRecordsByName(int);
-void updateRecord(); //Code not written yet!
-void updateLoginRecord(FILE *, FILE *, struct Person, int); //Code not written yet!
+void updateRecord();
 void deleteRecord();
 void deleteLoginRecord(FILE *, FILE *, int);
 void viewLoginInfo();
@@ -161,7 +156,6 @@ void options(){
 			}
 			break;
 		case 2:
-			printf("\tUpdate Record. ");
 			updateRecord();
 			break;
 		case 3:
@@ -715,9 +709,7 @@ void searchRecordsByName(int foundStatus){
 	options();
 }
 
-/* Lets Administrative user update record using id. 
-!!Code not written for this yet.
-*/
+/* Lets Administrative user update record using id. Login details is also updated */
 void updateRecord(){
 	int updateId, isUpdated = 0;
 	printf("\n\tEnter id of the record to be updated: ");
@@ -731,6 +723,17 @@ void updateRecord(){
 		struct Student s1;
 		struct Teacher t1;
 		whom = chooseWhoseInfo();
+	
+		system("cls");
+	
+		printf("\n\tEnter the ID: ");
+		scanf("%d", &p1.id);
+		
+		if(p1.id <= 0){
+			printf("\n\n\tEntered ID is invalid!!!\n\t");
+			system("pause");
+			options();
+		}
 	
 		printf("\n\tEnter the first name(max. 16 characters, no spaces): ");
 		scanf(" %s", &p1.first_name);
@@ -792,7 +795,6 @@ void updateRecord(){
 				
 					if(updateId == person.id) {
 						isUpdated = 1;
-						printf("\n\n\tfound!!");
 						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", p1.id, p1.first_name, 
 						p1.last_name, s1.grade, p1.phone_num, p1.email, s1.date.month, s1.date.day,
 						s1.date.year, p1.address, person.entryDate);
@@ -804,23 +806,15 @@ void updateRecord(){
 				}
 				fclose(fptr);
 				fclose(tempFptr);
+				/*
+				* Deletes StudentRecord.dat file
+				* Renames TempRec.dat file to StudentRecord.dat
+				*/
+				remove("Student/StudentRecord.dat");
+				rename("Student/TempRec.dat", "Student/StudentRecord.dat");
+				
 				fptr = fopen("Student/StudentLogin.dat", "rb");
 				tempFptr = fopen("Student/TempLogin.dat", "ab");
-				
-				updateLoginRecord(fptr, tempFptr, p1, updateId);
-				
-				fclose(fptr);
-				fclose(tempFptr);
-		
-				remove("Student/StudentRecord.dat"); //Deletes StudentRecord.dat file
-				remove("Student/StudentLogin.dat"); //Deletes StudentLogin.dat file
-				
-				/*
-				* Renames TempRec.dat file to StudentRecord.dat
-				* Renames TempLogin.dat file to StudentLogin.dat
-				*/
-				rename("Student/TempRec.dat", "Student/StudentRecord.dat");
-				rename("Student/TempLogin.dat", "Student/StudentLogin.dat");
 			}
 		
 		} else if(!strcmp("Teacher", whom)) {
@@ -849,23 +843,16 @@ void updateRecord(){
 				
 				fclose(fptr);
 				fclose(tempFptr);
+				/*
+				* Removes 'TeacherRecord.dat' file.
+				* Renames 'TempRec.dat' file to 'TeacherRecord.dat' file.
+				*/
+				remove("Teacher/TeacherRecord.dat");
+				rename("Teacher/TempRec.dat", "Teacher/TeacherRecord.dat");
 				
 				fptr = fopen("Teacher/TeacherLogin.dat", "rb");
 				tempFptr = fopen("Teacher/TempLogin.dat", "ab");
-			
-				/* Reads data from TeacherLogin.dat file and writes it in TempLogin.dat file */
-				updateLoginRecord(fptr, tempFptr, p1, updateId);
 				
-				fclose(fptr);
-				fclose(tempFptr);
-		
-				/* Removes 'TeacherRecord.dat' and 'TeacherLogin.dat' files. */
-				remove("Teacher/TeacherRecord.dat");
-				remove("Teacher/TeacherLogin.dat");
-				
-				/* Renames 'TempRec.dat' file to 'TeacherRecord.dat' and 'TempLogin.dat' file to 'TeacherLogin.dat' file. */
-				rename("Teacher/TempRec.dat", "Teacher/TeacherRecord.dat");
-				rename("Teacher/TempLogin.dat", "Teacher/TeacherLogin.dat");
 			}
 		
 		} else if(!strcmp("Administration", whom)) {
@@ -896,38 +883,64 @@ void updateRecord(){
 				}
 				fclose(fptr);
 				fclose(tempFptr);
+				/*
+				* Removes 'AdministrationRecord.dat' File.
+				* Renames 'TempRec.dat' file to 'AdministrationRecord.dat'.
+				*/
+				remove("Administration/AdministrationRecord.dat");
+				rename("Administration/TempRec.dat", "Administration/AdministrationRecord.dat");
 				
 				fptr = fopen("Administration/AdministrationLogin.dat", "rb");
 				tempFptr = fopen("Administration/TempLogin.dat", "ab");
 				
-				/* Reads data from AdministrationLogin.dat file and writes it in TempLogin.dat file. */
-				updateLoginRecord(fptr, tempFptr, p1, updateId);
-				
-				fclose(fptr);
-				fclose(tempFptr);
-				/* Deletes 'AdministrationRecord.dat' and 'AdministrationLogin.dat' files. */
-				remove("Administration/AdministrationRecord.dat");
-				remove("Administration/AdministrationLogin.dat");
-				
-				/* Renames 'TempRec.dat' file to 'AdministrationRecord.dat' and 'TempLogin.dat' file to 'AdministrationLogin.dat' file. */
-				rename("Administration/TempRec.dat", "Administration/AdministrationRecord.dat");
-				rename("Administration/TempLogin.dat", "Administration/AdministrationLogin.dat");
 			}
 		}
 		
-	}
-
-}
-
-void updateLoginRecord(FILE *fileptr, FILE *tempFileptr, struct Person p1, int updateId){
-	while(fscanf(fileptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+		while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
 					
-		if(updateId == person.id) {
-			fprintf(tempFileptr, "%d\t%s\t%s\n", p1.id, p1.username, p1.password);
-		} else {
-			fprintf(tempFileptr, "%d\t%s\t%s\n", person.id, person.username, person.password);
+			if(updateId == person.id) {
+				fprintf(tempFptr, "%d\t%s%d\t%s\n", p1.id, p1.first_name, p1.id, person.password);
+			} else {
+				fprintf(tempFptr, "%d\t%s\t%s\n", person.id, person.username, person.password);
+			}	
+		}
+		
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		if(!strcmp("Student", whom)) {
+			/*
+			*Deletes 'StudentLogin.dat' files.
+			*Renames 'TempLogin.dat' file to 'StudentLogin.dat' file.
+			*/
+			remove("Student/StudentLogin.dat");
+			rename("Student/TempLogin.dat", "Student/StudentLogin.dat");
+		}else if(!strcmp("Teacher", whom)) {
+			/*
+			*Deletes 'TeacherLogin.dat' files.
+			*Renames 'TempLogin.dat' file to 'TeacherLogin.dat' file.
+			*/
+			remove("Teacher/TeacherLogin.dat");
+			rename("Teacher/TempLogin.dat", "Teacher/TeacherLogin.dat");
+		} else if(!strcmp("Administration", whom)) {
+			/*
+			*Deletes 'AdministrationLogin.dat' files.
+			*Renames 'TempLogin.dat' file to 'AdministrationLogin.dat' file.
+			*/
+			remove("Administration/AdministrationLogin.dat");
+			rename("Administration/TempLogin.dat", "Administration/AdministrationLogin.dat");
 		}	
 	}
+	
+	if(isUpdated){
+		printf("\n\tRecord Updated successfully!\n\n\t");
+	}else{
+		printf("\n\tProblem updating the Record!! PLease make sure the entered Id is correct.\n\n\t");
+	}
+	
+	system("pause");
+	options();
+	
 }
 
 /* Lets Administrative user delete record using id. */
@@ -1081,7 +1094,7 @@ void deleteRecord(){
 		if(isDeleted) {
 			printf("\n\tRecord Deleted Successfully..\n\n\t");
 		} else {
-			printf("\n\tProblem deleing the Record!! PLease make sure the entered Id is correct.\n\n\t");
+			printf("\n\tProblem deleting the Record!! PLease make sure the entered Id is correct.\n\n\t");
 		}
 	
 	}
@@ -1091,6 +1104,7 @@ void deleteRecord(){
 	
 }
 
+/* Deletes Login record of the user whose record was deleted recently using id. */
 void deleteLoginRecord(FILE *fileptr, FILE *tempFileptr, int deleteId){
 	
 	while(fscanf(fileptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
