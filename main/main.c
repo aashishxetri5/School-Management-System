@@ -54,6 +54,8 @@ void updateRecord();
 void deleteRecord();
 void deleteLoginRecord(FILE *, FILE *, int);
 void viewLoginInfo();
+void sortRecords();
+void changePassword(int);
 
 /* Variable Declaration */
 unsigned short int menuChoice, i;
@@ -138,7 +140,7 @@ void options(){
 		printf("\t6. Sort Records\n");
 		printf("\t7. View Login Information\n");
 	}
-	printf("\t8. Change Password.\n");
+	printf("\t8. Change Password\n");
 	printf("\t9. Logout\n");
 	printf("\t0. Exit\n");
 	printf("\n\n\tEnter your choice: ");
@@ -281,15 +283,14 @@ void addRecord(){
 		} else 	if(!strcmp("Teacher", whom)){
 			printf("\n\tEnter the subject: ");
 			scanf(" %s", &teacher.subject);
-			
-			if(!strcmp("Teacher", whom) || !strcmp("Administration", whom)){
-				printf("\n\tEnter the salary(in Rupees): ");
-				scanf("%i", &teacher.salary);
-				if(teacher.salary <=0){
-					printf("\n\tInvalid Data!!");
-					system("pause");
-						addRecord();
-				}
+		}
+		if(!strcmp("Teacher", whom) || !strcmp("Administration", whom)){
+			printf("\n\tEnter the salary(in Rupees): ");
+			scanf("%i", &teacher.salary);
+			if(teacher.salary <=0){
+				printf("\n\tInvalid Data!!");
+				system("pause");
+				addRecord();
 			}
 		}
 		printf("\n\tEnter the address(max. 30 characters, no spaces): ");
@@ -316,11 +317,15 @@ void addRecord(){
 			fclose(fptr);
 
 			/*
-				>-- Format of Student Table --<
+				>-- Format of Student Record Table --<
 			 | ID | Full Name | Grade | Ph-Num | Email | DoB | Address | Entry Date |
 			*/
 			
 			fptr = fopen("Student/StudentLogin.dat", "ab");
+			/*
+			>-- Format of Student Login Record Table --<
+			| ID | Username | Password |
+			*/
 			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "1234567\0");
 			
 		} else if(!strcmp("Teacher", whom)){
@@ -333,11 +338,15 @@ void addRecord(){
 			fclose(fptr);
 			
 			/*
-				>-- Format of Teacher Table --</
+				>-- Format of Teacher Record Table --<
 			 | ID | Full Name | Ph-Num | E-mail | Address | Subject | Salary | Entry Date |
 			*/
 			
 			fptr = fopen("Teacher/TeacherLogin.dat", "ab");
+			/*
+			>-- Format of Teacher Login Record Table --<
+			| ID | Username | Password |
+			*/
 			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "qwertyu\0");
 			
 		} else if(!strcmp("Administration", whom)){
@@ -350,12 +359,16 @@ void addRecord(){
 			fclose(fptr);
 			
 			/*
-				>-- Format of Administration Table --</
+				>-- Format of Administration Record Table --</
 			 | ID | Full Name | Ph-Num | E-mail | Address | Salary | Entry Date |
 			*/
 			
 			fptr = fopen("Administration/AdministrationLogin.dat", "ab");
-			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "123asdf\0"); //make a function to get fname
+			/*
+			>-- Format of Administration Login Record Table --<
+			| ID | Username | Password |
+			*/
+			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "123asdf\0"); 
 			
 		}
 		fclose(fptr);
@@ -476,7 +489,7 @@ void viewGeneralRecord(){
 			printf("\t%s File Not Found!!!", whom);
 		} else {
 			printf("%-7s %-25s %-15s %-35s %-15s %-11s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Salary", "Entry Date");
-			printf("\n------------------------------------------------------------------------------------------------------------------");
+			printf("\n-----------------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, &teacher.salary, person.entryDate) != -1){
@@ -601,7 +614,7 @@ void searchRecordById(){
 				printf("\n\t%s File Not Found!!!", whom);
 			} else {
 				printf("\n%-7s %-25s %-15s %-35s %-15s %-11s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Salary", "Entry Date");
-				printf("\n-------------------------------------------------------------------------------------------------------------------------");
+				printf("\n------------------------------------------------------------------------------------------------------------------------------------");
 				
 				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 				person.email, person.address, &teacher.salary, person.entryDate) != -1){
@@ -702,7 +715,7 @@ void searchRecordsByName(){
 			printf("\n\t%s File Not Found!!!", whom);
 		} else {
 			printf("\n%-7s %-25s %-15s %-35s %-15s %-11s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Salary", "Entry Date");
-			printf("\n------------------------------------------------------------------------------------------------------------------");
+			printf("\n-----------------------------------------------------------------------------------------------------------------------------");
 			
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, &teacher.salary, person.entryDate) != -1){
@@ -784,17 +797,18 @@ void updateRecord(){
 		} else 	if(!strcmp("Teacher", whom)){
 			printf("\n\tEnter the subject: ");
 			scanf(" %s", &t1.subject);
-			
-			if(!strcmp("Teacher", whom) || !strcmp("Administration", whom)){
-				printf("\n\tEnter the salary(in Rupees): ");
-				scanf("%i", &t1.salary);
-				if(t1.salary <=0){
-					printf("\n\tInvalid Data!!\n\t");
-					system("pause");
-					options();
-				}
+		}
+		
+		if(!strcmp("Teacher", whom) || !strcmp("Administration", whom)){
+			printf("\n\tEnter the salary(in Rupees): ");
+			scanf("%i", &t1.salary);
+			if(t1.salary <=0){
+				printf("\n\tInvalid Data!!\n\t");
+				system("pause");
+				options();
 			}
 		}
+		
 	
 		printf("\n\tEnter the address(max. 30 characters, no spaces): ");
 		scanf(" %s", &p1.address);
@@ -1187,5 +1201,13 @@ void viewLoginInfo(){
 	
 }	
 
+// Sorts record in a file(both record file and login record file.)
+void sortRecords(){
 
+}
+
+// Allows user to change his/her password
+void changePassword(int loggedInId){
+
+}
 
