@@ -6,7 +6,7 @@
 #include <time.h> //for entry date.
 
 /* Structure Declaration */
- typedef struct{
+typedef struct{
 	unsigned short int day;
 	unsigned short int month;
 	unsigned short int year;
@@ -117,10 +117,10 @@ void welcome(){
 
 /* lets user choose who s/he want to login as. */
 void loginMenu(){
-	printf("\n\t1. Student Login.");
-    printf("\n\t2. Teacher Login.");
-    printf("\n\t3. Accounts Login.");
-    printf("\n\t0. Exit.\n");
+	printf("\n\t1. Student Login");
+    printf("\n\t2. Teacher Login");
+    printf("\n\t3. Accounts Login");
+    printf("\n\t0. Exit\n");
     printf("\n\tEnter your choice: ");
     scanf("%d", &menuChoice);
 }
@@ -129,7 +129,7 @@ void loginMenu(){
 void options(){
 	welcome();
 	
-	/* Displays menu */
+	/* Displays main menu of the program */
 	printf("\t1. View Record(s)\n");
 	printf("\t2. Update Record\n");
 	
@@ -144,8 +144,8 @@ void options(){
 	printf("\t8. Change Password\n");
 	printf("\t9. Logout\n");
 	printf("\t0. Exit\n");
-	printf("\n\n\tEnter your choice: ");
-	scanf("%d", &menuChoice);
+	printf("\n\tEnter your choice: ");
+	scanf("%hu", &menuChoice);
 	
 	/* Prevents Students and Teachers from accessing Administrative Controls. */
 	if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 2 && menuChoice < 8)){
@@ -223,16 +223,20 @@ void login(){
     }
     login_password[i]='\0';
 
-    if( loggedin_userid == 11 && !strcmp("Aashish", login_username) && !strcmp("1234567", login_password) ) {
+	/*
+		* Super Admin login credentials is the first expression of the below if condition
+		* The second expression makes a function call where login details given by user is passed as an arugument and checked if the credentials match with those in the file.
+		* Both super admin and admins will have access to all the administrative controls.
+	*/
+    if( (loggedin_userid == 20580913 && !strcmp("hari^Bdr", login_username) && !strcmp("2001128", login_password)) || isValidUser(login_username, login_password) ) {
         printf("\n\tLogin Successful!!\n\n\t");
     	system("pause");
         options();
 
     } else {
-        printf("\n\tLogin Failed\n\n\t");
+        printf("\n\n\tEntered credentials doesn't exist!!\n\n\t");
         system("pause");
         who = NULL;
-        welcome();
         main();
     }
 }
@@ -1213,10 +1217,6 @@ void changePassword(){
 	char newPassword[8], retypedPassword[8];
 	FILE *tempFptr = NULL;
 	
-	/* Delete this after login is created. */
-	printf("\n\tEnter ID: ");
-	scanf("%d", &loggedin_userid);
-	
 	if(!strcmp("Student", who)){
 		fptr = fopen("Student/StudentLogin.dat", "rb");
 		tempFptr = fopen("Student/TempLogin.dat", "ab");
@@ -1289,7 +1289,46 @@ void changePassword(){
 	
 }
 
-
-int isValidUser(char username[], char password[]){
+// Retrives data from file with login credentials and compares with login details entered by user.
+int isValidUser(char uname[], char pwd[]){
+	isSuccessful = 0; //Reseting the success value
 	
+	if(!strcmp("Student", who)){
+		fptr = fopen("Student/StudentLogin.dat", "rb");
+	} else if(!strcmp("Teacher", who)){
+		fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+	} else if(!strcmp("Administration", who)){
+		fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+	}
+	
+	if(fptr != NULL) {
+		
+		while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+			
+			if( !strcmp(uname, person.username) && !strcmp(pwd, person.password) ) {
+				isSuccessful = 1;
+			}
+			
+		}
+	}
+	
+	fclose(fptr);
+	return isSuccessful;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
