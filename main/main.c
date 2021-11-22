@@ -55,12 +55,13 @@ void deleteRecord();
 void deleteLoginRecord(FILE *, FILE *, int);
 void viewLoginInfo();
 void sortRecords();
-void changePassword(int);
+void changePassword();
+int isValidUser(char* , char*);
 
 /* Variable Declaration */
 unsigned short int menuChoice, i;
 char *who = NULL;
-static int login_id;
+static int loggedin_userid;
 int isSuccessful = 0;
 const char* whom = NULL;
 char *fullname;
@@ -147,7 +148,7 @@ void options(){
 	scanf("%d", &menuChoice);
 	
 	/* Prevents Students and Teachers from accessing Administrative Controls. */
-	if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 2 && menuChoice < 9)){
+	if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 2 && menuChoice < 8)){
 		printf("\n\tInvalid input...\n\t");
 		system("pause");
 		system("cls");
@@ -182,7 +183,7 @@ void options(){
 			viewLoginInfo();
 			break;
 		case 8:
-			printf("\n\tYesma chai password change hunxa hai sanu.");
+			changePassword();
 			break;	
 		case 9:
 			printf("\n\tLogging out...\n\t");
@@ -209,7 +210,7 @@ void login(){
     printf("\tNote: Password Must be exactly 7 characters long and username\n\tcan't exceed 20 characters\n\n");
 
 	printf("\tEnter your ID: ");
-	scanf("%d", &login_id);
+	scanf("%d", &loggedin_userid);
 
     printf("\tEnter your username: ");
     scanf(" %[^\n]s", login_username);
@@ -222,7 +223,7 @@ void login(){
     }
     login_password[i]='\0';
 
-    if( login_id == 11 && !strcmp("Aashish", login_username) && !strcmp("1234567", login_password) ) {
+    if( loggedin_userid == 11 && !strcmp("Aashish", login_username) && !strcmp("1234567", login_password) ) {
         printf("\n\tLogin Successful!!\n\n\t");
     	system("pause");
         options();
@@ -1207,7 +1208,88 @@ void sortRecords(){
 }
 
 // Allows user to change his/her password
-void changePassword(int loggedInId){
-
+void changePassword(){
+	isSuccessful = 0;
+	char newPassword[8], retypedPassword[8];
+	FILE *tempFptr = NULL;
+	
+	/* Delete this after login is created. */
+	printf("\n\tEnter ID: ");
+	scanf("%d", &loggedin_userid);
+	
+	if(!strcmp("Student", who)){
+		fptr = fopen("Student/StudentLogin.dat", "rb");
+		tempFptr = fopen("Student/TempLogin.dat", "ab");
+	} else if(!strcmp("Teacher", who)){
+		fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+		tempFptr = fopen("Teacher/TempLogin.dat", "ab");
+	} else if(!strcmp("Administration", who)){
+		fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+		tempFptr = fopen("Administration/TempLogin.dat", "ab");
+	}
+	
+	printf("\n\tEnter new password: ");
+	/* Accepts Password and displays '*' instead of entered character. */
+    for(i=0; i<7; i++) {
+        newPassword[i] = getch();
+        printf("*");
+    }
+    newPassword[i]='\0';
+	
+	printf("\n\tRetype the new password: ");
+	
+    for(i=0; i<7; i++) {
+        retypedPassword[i] = getch();
+        printf("*");
+    }
+    retypedPassword[i]='\0';
+	
+	if(!strcmp(newPassword, retypedPassword)) {
+	
+		if(fptr == NULL) {
+				printf("\n\tCould not perform requested operation!!!"); // after login is unique for all users, remove this!
+		} else {
+			
+			while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+				
+				if(loggedin_userid == person.id) {
+					fprintf(tempFptr, "%d\t%s\t%s\n", person.id, person.username, newPassword);
+					isSuccessful = 1;
+				} else {
+					fprintf(tempFptr, "%d\t%s\t%s\n", person.id, person.username, person.password);
+				}
+			}
+		}
+		
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		if(!strcmp("Student", who)){
+			remove("Student/StudentLogin.dat");
+			rename("Student/TempLogin.dat", "Student/StudentLogin.dat");
+		} else if(!strcmp("Teacher", who)){
+			remove("Teacher/TeacherLogin.dat");
+			rename("Teacher/TempLogin.dat", "Teacher/TeacherLogin.dat");
+		} else if(!strcmp("Administration", who)){
+			remove("Administration/AdministrationLogin.dat");
+			rename("Administration/TempLogin.dat", "Administration/AdministrationLogin.dat");
+		}
+		
+	} else {
+		printf("\n\tPasswords do not match!! Please try again\n\n\t");
+		system("pause");
+		options();
+	}
+	
+	if(isSuccessful){
+		printf("\n\tPassword Changed Successfully");
+	}else{
+		printf("\n\tProblem performing requested action.");
+	}
+	
 }
 
+
+int isValidUser(char username[], char password[]){
+	
+}
