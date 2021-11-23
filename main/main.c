@@ -1264,10 +1264,13 @@ void sortRecords(){
 		
 		/* Sort records using bubble sort. */
 		for(i = 0; i<recordCount; i++){
-//			for(j = 0; j < recordCount - i - 1; j++){
-				printf("%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", personData[i].id, personData[i].first_name, personData[i].last_name,
-				personData[i].phone_num, personData[i].email, personData[i].address, teacherData[i].subject, teacherData[i].salary, personData[i].entryDate);
-//			}
+			for(j = 0; j < recordCount - i - 1; j++){
+				if(personData[j].id > personData[j+1].id){
+//				temp = numbers[j];
+//                numbers[j] = numbers[j+1];
+//                numbers[j+1] = temp;
+				}	
+			}
 		}
 	
 	}  else if(!strcmp("Administration", whom)){
@@ -1575,8 +1578,7 @@ void updateSelfRecord(){
 		* Removes 'TeacherRecord.dat' file.
 		* Renames 'TempRec.dat' file to 'TeacherRecord.dat' file.
 		*/
-		fclose(fptr);
-		remove("Teacher/TeacherRecord.dat");
+		remove("Teacher/TeacherRecord.dat"); /* NOT WORKING */
 		rename("Teacher/TempRec.dat", "Teacher/TeacherRecord.dat");
 	}
 	
