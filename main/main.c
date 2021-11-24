@@ -55,7 +55,7 @@ void deleteRecord();
 void deleteLoginRecord(FILE *, FILE *, int);
 void viewLoginInfo();
 void sortRecords();
-int getNumOfRecords(int, const char*);
+int getNumOfRecords();
 void sortLoginRecords(FILE *, FILE *, int);
 void changePassword();
 int isValidUser(char*, char*);
@@ -146,6 +146,7 @@ void options(){
 		printf("\t6. Sort Records\n");
 		printf("\t7. View Login Information\n");
 	}
+	/*Super admin won't be able to access this option. */
 	if(loggedin_userid != 20580913){
 		printf("\t8. Change Password\n");
 	}
@@ -160,6 +161,7 @@ void options(){
 		system("pause");
 		system("cls");
 		options();
+	/*Prevents Super Admin from accessing change password feature.*/
 	} else if(loggedin_userid == 20580913 && menuChoice == 8){
 		printf("\n\tInvalid input...\n\t");
 		system("pause");
@@ -330,7 +332,7 @@ void addRecord(){
 		if(!strcmp("Student", whom)){
 			fptr = fopen("Student/StudentRecord.dat", "ab");
 		
-			fprintf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", person.id, person.first_name, person.last_name,
+			fprintf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", temp, person.first_name, person.last_name,
 			student.grade, person.phone_num, person.email, student.dob.month, student.dob.day, student.dob.year, person.address,
 			person.entryDate);
 			
@@ -346,13 +348,13 @@ void addRecord(){
 			>-- Format of Student Login Record Table --<
 			| ID | Username | Password |
 			*/
-			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "1234567\0");
+			fprintf(fptr, "%d\t%s%d\t%s\n", temp, person.first_name, temp, "1234567\0");
 			
 		} else if(!strcmp("Teacher", whom)){
 			
 			fptr = fopen("Teacher/TeacherRecord.dat", "ab");
 		
-			fprintf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", person.id, person.first_name, person.last_name, person.phone_num,
+			fprintf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", temp, person.first_name, person.last_name, person.phone_num,
 			person.email, person.address, teacher.subject, teacher.salary, person.entryDate);
 			
 			fclose(fptr);
@@ -367,13 +369,13 @@ void addRecord(){
 			>-- Format of Teacher Login Record Table --<
 			| ID | Username | Password |
 			*/
-			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "qwertyu\0");
+			fprintf(fptr, "%d\t%s%d\t%s\n", temp, person.first_name, temp, "qwertyu\0");
 			
 		} else if(!strcmp("Administration", whom)){
 			
 			fptr = fopen("Administration/AdministrationRecord.dat", "ab");
 		
-			fprintf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", person.id, person.first_name, person.last_name, person.phone_num,
+			fprintf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", temp, person.first_name, person.last_name, person.phone_num,
 			person.email, person.address, teacher.salary, person.entryDate);
 			
 			fclose(fptr);
@@ -388,7 +390,7 @@ void addRecord(){
 			>-- Format of Administration Login Record Table --<
 			| ID | Username | Password |
 			*/
-			fprintf(fptr, "%d\t%s%d\t%s\n", person.id, person.first_name, person.id, "123asdf\0"); 
+			fprintf(fptr, "%d\t%s%d\t%s\n", temp, person.first_name, temp, "123asdf\0"); 
 			
 		}
 		fclose(fptr);
@@ -782,10 +784,11 @@ void updateRecord(){
 		printf("\n\tEnter the ID: ");
 		scanf("%d", &p1.id);
 		
-		if(p1.id <= 0){
-			printf("\n\n\tEntered ID is invalid!!!\n\t");
+		int temp = p1.id;
+		if(p1.id <= 0 || isUniqueId(temp)){
+			printf("\n\tEntered ID is invalid!!!\n\t");
 			system("pause");
-			options();
+			addRecord();
 		}
 	
 		printf("\n\tEnter the first name(max. 16 characters, no spaces): ");
@@ -812,7 +815,7 @@ void updateRecord(){
 			
 			}else{
 				system("pause");
-				printf("\n\n\tEntered date is invalid!!!\n\t");
+				printf("\n\tEntered date is invalid!!!\n\t");
 			}
 		} else 	if(!strcmp("Teacher", whom)){
 			printf("\n\tEnter the subject: ");
@@ -856,7 +859,7 @@ void updateRecord(){
 					entryDate();
 					if(updateId == person.id) {
 						isSuccessful = 1;
-						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", p1.id, p1.first_name, 
+						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", temp, p1.first_name, 
 						p1.last_name, s1.grade, p1.phone_num, p1.email, s1.dob.month, s1.dob.day, s1.dob.year, p1.address,
 						person.entryDate);
 					} else {
@@ -894,7 +897,7 @@ void updateRecord(){
     				entryDate();
 					if(updateId == person.id) {
 						isSuccessful = 1;
-						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", p1.id, p1.first_name, p1.last_name, 
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", temp, p1.first_name, p1.last_name, 
 						p1.phone_num, p1.email, p1.address, t1.subject, t1.salary, person.entryDate);
 					} else {
 						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", person.id, person.first_name, person.last_name, 
@@ -932,7 +935,7 @@ void updateRecord(){
     				entryDate();
 					if(updateId == person.id) {
 						isSuccessful = 1;
-						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", p1.id, p1.first_name, p1.last_name,
+						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", temp, p1.first_name, p1.last_name,
 						p1.phone_num, p1.email, p1.address, t1.salary, person.entryDate);
 					} else {
 						
@@ -959,7 +962,7 @@ void updateRecord(){
 		while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
 					
 			if(updateId == person.id) {
-				fprintf(tempFptr, "%d\t%s%d\t%s\n", p1.id, p1.first_name, p1.id, person.password);
+				fprintf(tempFptr, "%d\t%s%d\t%s\n", temp, p1.first_name, temp, person.password);
 			} else {
 				fprintf(tempFptr, "%d\t%s\t%s\n", person.id, person.username, person.password);
 			}	
@@ -1044,6 +1047,7 @@ void deleteRecord(){
 				}
 				fclose(fptr);
 				fclose(tempFptr);
+				
 				fptr = fopen("Student/StudentLogin.dat", "rb");
 				tempFptr = fopen("Student/TempLogin.dat", "ab");
 			
@@ -1123,9 +1127,7 @@ void deleteRecord(){
     			
 					if(deleteId == person.id) {
 						isSuccessful = 1;
-						continue;
 					} else {
-						
 						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", person.id, person.first_name, person.last_name,
 						person.phone_num, person.email, person.address, teacher.salary, person.entryDate);
 						
@@ -1221,11 +1223,12 @@ void viewLoginInfo(){
 // Sorts record in a file(both record file and login record file.)
 void sortRecords(){
 	int recordCount = 0, j;
+	isSuccessful = 0;
 	system("cls");
 	welcome();
 
 	whom = chooseWhoseInfo();
-	recordCount = getNumOfRecords(0, whom);
+	recordCount = getNumOfRecords();
 
 	struct Person personData[recordCount];
 	FILE *tempFptr = NULL;
@@ -1233,8 +1236,10 @@ void sortRecords(){
 	if(!strcmp("Student", whom)){
 	
 		struct Student studentData[recordCount];
+		
 		fptr = fopen("Student/StudentRecord.dat", "rb");
-		tempFptr = fopen("Student/tempRecord.dat", "rb");
+		tempFptr = fopen("Student/tempRecord.dat", "ab");
+		
 		/* Fetch records and store into the array. */
 		while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &personData[i].id, personData[i].first_name, personData[i].last_name,
 		&studentData[i].grade, &personData[i].phone_num, personData[i].email, &studentData[i].dob.month, &studentData[i].dob.day,
@@ -1242,20 +1247,66 @@ void sortRecords(){
 			i++;
 		}
 	
-		/* Sort records using bubble sort. */
+		/* Sort records in Student Record file using bubble sort. */
 		for(i = 0; i<recordCount - 1; i++){
 			for(j = 0; j < recordCount - i - 1; j++){
 				if(personData[j].id > personData[j+1].id){
 					
+					person.id = personData[j].id; strcpy(person.first_name, personData[j].first_name); strcpy(person.last_name, personData[j].last_name);
+				 	student.grade = studentData[j].grade; person.phone_num = personData[j].phone_num; strcpy(person.email, personData[j].email);
+					student.dob.month = studentData[j].dob.month; student.dob.day = studentData[j].dob.day; student.dob.year = studentData[j].dob.year;
+					strcpy(person.address, personData[j].address); strcpy(person.entryDate, personData[j].entryDate);
+
+					personData[j] = personData[j+1];
+					studentData[j] = studentData[j+1];
+					
+					personData[j+1] = personData[j];
+					studentData[j+1] = studentData[j];
+					
+					personData[j+1].id = person.id; strcpy(personData[j+1].first_name, person.first_name); strcpy(personData[j+1].last_name, person.last_name);
+					studentData[j+1].grade = student.grade; personData[j+1].phone_num = person.phone_num; strcpy(personData[j+1].email, person.email);
+					studentData[j+1].dob.month = student.dob.month; studentData[j+1].dob.day = student.dob.day; studentData[j+1].dob.year = student.dob.year;
+					strcpy(personData[j+1].address, person.address); strcpy(person.entryDate, personData[j+1].entryDate);
 				}
 			}
 		}
+		
+		/* Writes sorted data into the file */
+		i = 0;
+		while(i != recordCount){
+			isSuccessful = 1;
+			fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", personData[i].id, personData[i].first_name, personData[i].last_name,
+			studentData[i].grade, personData[i].phone_num, personData[i].email, studentData[i].dob.month, studentData[i].dob.day, studentData[i].dob.year,
+			personData[i].address, personData[i].entryDate);
+			i++;
+		}
+		
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		/*Removes the StudentRecord.dat file and renames the 'tempRecord.dat' file to 'StudentRecord.dat'*/
+		remove("Student/StudentRecord.dat");
+		rename("Student/tempRecord.dat", "Student/StudentRecord.dat");
+		
+		/* For sorting records in 'StudentLogin.dat' File.*/
+		fptr = fopen("Student/StudentLogin.dat", "rb");
+		tempFptr = fopen("Student/tempLogin.dat", "ab");
+		
+		sortLoginRecords(fptr, tempFptr, recordCount);
+		
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		/*Removes the StudentRecord.dat file and renames the 'tempRecord.dat' file to 'StudentRecord.dat'*/
+		remove("Student/StudentLogin.dat");
+		rename("Student/tempLogin.dat", "Student/StudentLogin.dat");
 	
 	} else if(!strcmp("Teacher", whom)){
 	
 		struct Teacher teacherData[recordCount];
 		fptr = fopen("Teacher/TeacherRecord.dat", "rb");
-		tempFptr = fopen("Teacher/tempRecord.dat", "rb");
+		tempFptr = fopen("Teacher/tempRecord.dat", "ab");
+		
 		/* Fetch records and store into the array */
 		while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", &personData[i].id, personData[i].first_name, personData[i].last_name,
 		&personData[i].phone_num, personData[i].email, personData[i].address, teacherData[i].subject, &teacherData[i].salary, personData[i].entryDate) != -1){
@@ -1266,42 +1317,128 @@ void sortRecords(){
 		for(i = 0; i<recordCount; i++){
 			for(j = 0; j < recordCount - i - 1; j++){
 				if(personData[j].id > personData[j+1].id){
-//				temp = numbers[j];
-//                numbers[j] = numbers[j+1];
-//                numbers[j+1] = temp;
+					
+					person.id = personData[j].id; strcpy(person.first_name, personData[j].first_name); strcpy(person.last_name, personData[j].last_name);
+					person.phone_num = personData[j].phone_num; strcpy(person.email, personData[j].email); strcpy(person.address, personData[j].address); strcpy(teacher.subject, teacherData[j].subject);
+					teacher.salary = teacherData[j].salary; strcpy(person.entryDate, personData[j].entryDate);
+
+					personData[j] = personData[j+1];
+					teacherData[j] =teacherData[j+1];
+					
+					personData[j+1] = personData[j];
+					teacherData[j+1] = teacherData[j];
+					
+					personData[j+1].id = person.id; strcpy(personData[j+1].first_name, person.first_name); strcpy(personData[j+1].last_name, person.last_name);
+					personData[j+1].phone_num = person.phone_num; strcpy(personData[j+1].email, person.email); strcpy(personData[j+1].address, person.address); strcpy(teacherData[j+1].subject, teacher.subject);
+					teacherData[j+1].salary = teacher.salary; strcpy(personData[j+1].entryDate, person.entryDate);
 				}	
 			}
 		}
+		
+		i = 0;
+		while(i != recordCount){
+			isSuccessful = 1;
+			fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", personData[i].id, personData[i].first_name, personData[i].last_name,
+			personData[i].phone_num, personData[i].email, personData[i].address, teacherData[i].subject, teacherData[i].salary, personData[i].entryDate);
+			i++;
+		}
+		
+		fclose(fptr);
+		fclose(tempFptr);
+	
+		/*Removes the TeacherRecord.dat file and renames the 'tempRecord.dat' file to 'TeacherRecord.dat'*/
+		remove("Teacher/TeacherRecord.dat");
+		rename("Teacher/tempRecord.dat", "Teacher/TeacherRecord.dat");
+		
+		/* For sorting records in 'TeacherLogin.dat' File.*/
+		fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+		tempFptr = fopen("Teacher/tempLogin.dat", "ab");
+
+		sortLoginRecords(fptr, tempFptr, recordCount);
+		
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		/*Removes the StudentRecord.dat file and renames the 'tempRecord.dat' file to 'StudentRecord.dat'*/
+		remove("Teacher/TeacherLogin.dat");
+		rename("Teacher/tempLogin.dat", "Teacher/TeacherLogin.dat");
 	
 	}  else if(!strcmp("Administration", whom)){
 	
 		struct Teacher teacherData[recordCount];
+		
 		fptr = fopen("Administration/AdministrationRecord.dat", "rb");
-		tempFptr = fopen("Administration/tempRecord.dat", "rb");
+		tempFptr = fopen("Administration/tempRecord.dat", "ab");
 		
 		/* Fetch records and store into the array */
 		while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", &personData[i].id, personData[i].first_name, personData[i].last_name, &personData[i].phone_num,
-		personData[i].email, personData[i].address, &teacherData[i].salary, personData[i].entryDate) != -1){
+		personData[i].email, personData[i].address, &teacherData[i].salary, personData[i].entryDate) != -1) {
 			i++;
 		}
 	
 		/* Sort records using bubble sort. */
-		for(i = 0; i<recordCount - 1; i++){
-			for(j = 0; j < recordCount - i - 1; j++){
-				if(personData[j].id > personData[j+1].id){
+		for(i = 0; i<recordCount - 1; i++) {
+			for(j = 0; j < recordCount - i - 1; j++) {
+				if(personData[j].id > personData[j+1].id) {
+					person.id = personData[j].id; strcpy(person.first_name, personData[j].first_name); strcpy(person.last_name, personData[j].last_name);
+					person.phone_num = personData[j].phone_num; strcpy(person.email, personData[j].email); strcpy(person.address, personData[j].address);
+					teacher.salary = teacherData[j].salary; strcpy(person.entryDate, personData[j].entryDate);
+
+					personData[j] = personData[j+1];
+					teacherData[j] = teacherData[j+1];
 					
+					personData[j+1] = personData[j];
+					teacherData[j+1] = teacherData[j];
+					
+					personData[j+1].id = person.id; strcpy(personData[j+1].first_name, person.first_name); strcpy(personData[j+1].last_name, person.last_name);
+					personData[j+1].phone_num = person.phone_num; strcpy(personData[j+1].email, person.email); strcpy(personData[j+1].address, person.address);
+					teacherData[j+1].salary = teacher.salary; strcpy(person.entryDate, personData[j+1].entryDate);
 				}
 			}
 		}
+	
+		i = 0;
+		while(i != recordCount){
+			isSuccessful = 1;
+			fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", personData[i].id, personData[i].first_name, personData[i].last_name,
+			personData[i].phone_num, personData[i].email, personData[i].address, teacherData[i].salary, personData[i].entryDate);
+			i++;
+		}
+	
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		/*Removes the StudentRecord.dat file and renames the 'tempRecord.dat' file to 'StudentRecord.dat'*/
+		remove("Administration/AdministrationRecord.dat");
+		rename("Administration/tempRecord.dat", "Administration/AdministrationRecord.dat");
+
+		/* For sorting records in 'AdministrationLogin.dat' File.*/
+		fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+		tempFptr = fopen("Administration/tempLogin.dat", "ab");
+
+		sortLoginRecords(fptr, tempFptr, recordCount);
+		
+		fclose(fptr);
+		fclose(tempFptr);
+		
+		/*Removes the StudentRecord.dat file and renames the 'tempRecord.dat' file to 'StudentRecord.dat'*/
+		remove("Administration/AdministrationLogin.dat");
+		rename("Administration/tempLogin.dat", "Administration/AdministrationLogin.dat");
+	}
+
+	if(isSuccessful) {
+		printf("\n\n\tData Sorted Successfully!!\n\n\t");
+	} else {
+		printf("\n\n\tProblem sorting the data!! Please recheck the data and try again later.\n\n\t");
 	}
 	
-	fclose(fptr);
-	fclose(tempFptr);
-
+	system("pause");
+	options();
 }
 
 // Goes through the records in file and return how many lines of data are there in the file.
-int getNumOfRecords(int count, const char* whom){
+int getNumOfRecords(){
+	int count = 0;
 	if(!strcmp("Student", whom)){
 		fptr = fopen("Student/StudentLogin.dat", "rb");
 	} else if(!strcmp("Teacher", whom)){
@@ -1321,7 +1458,35 @@ int getNumOfRecords(int count, const char* whom){
 
 // Sorts record in the login record file.
 void sortLoginRecords(FILE *fileptr, FILE *tempFptr, int recordCount) {
+	int j;
+	struct Person personData[recordCount];
+	i = 0;
 	
+	/* Fetches data from login file of respective category.*/
+	while(fscanf(fileptr, "%d\t%s\t%s\n", &personData[i].id, &personData[i].username, &personData[i].password) != -1){		
+		i++;
+	}
+	
+	/* Sorts data using bubble sort algorithm. */
+	for(i = 0; i<recordCount - 1; i++){
+		for(j = 0; j < recordCount - i - 1; j++){
+			if(personData[j].id > personData[j+1].id){
+				person.id = personData[j].id; strcpy(person.username, personData[j].username); strcpy(person.password, personData[j].password);
+
+				personData[j] = personData[j+1];
+				personData[j+1] = personData[j];
+					
+				personData[j+1].id = person.id; strcpy(personData[j+1].username, person.username); strcpy(personData[j+1].password, person.password);
+			}
+		}
+	}
+	
+	/* Writes sorted data into the file.*/
+	i = 0;
+	while(recordCount != i){
+		fprintf(tempFptr, "%d\t%s\t%s\n", personData[i].id, personData[i].username, personData[i].password);
+		i++;
+	}
 	
 }
 
@@ -1392,7 +1557,6 @@ void changePassword(){
 	} else {
 		printf("\n\tPasswords do not match!! Please try again\n\n\t");
 		system("pause");
-		options();
 	}
 	
 	if(isSuccessful){
@@ -1400,7 +1564,7 @@ void changePassword(){
 	}else{
 		printf("\n\tProblem performing requested action.");
 	}
-	
+	options();
 }
 
 // Retrives data from file with login credentials and compares with login details entered by user.
@@ -1419,7 +1583,7 @@ int isValidUser(char uname[], char pwd[]){
 		
 		while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
 			
-			if( !strcmp(uname, person.username) && !strcmp(pwd, person.password) ) {
+			if( (person.id == loggedin_userid) && !strcmp(uname, person.username) && !strcmp(pwd, person.password) ) {
 				isSuccessful = 1;
 			}
 			
@@ -1468,7 +1632,7 @@ void getLoggedUserInfo(){
 		} else {
 			printf("\n%-7s %-25s %-13s %-30s %-15s %-13s %-11s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Salary", "Entry Date");
 			printf("\n------------------------------------------------------------------------------------------------------------------------------------");
-		
+
 			while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 			person.email, person.address, teacher.subject, &teacher.salary, person.entryDate) != -1){
     			
@@ -1477,12 +1641,13 @@ void getLoggedUserInfo(){
     				strcat(strcat(fullname, " "), person.last_name);
 					printf("\n%-7d %-25s %-13lld %-30s %-15s %-13s Rs.%-8i %s\n\n\t", person.id, fullname, person.phone_num, person.email,
 					person.address, teacher.subject, teacher.salary, person.entryDate);
-					break;	
+					break;
 				}
 			}
 		}	
 	}
 	
+	fclose(fptr);
 	system("pause");
 	options();
 	
@@ -1545,6 +1710,7 @@ void updateSelfRecord(){
 				student.dob.year, person.address, person.entryDate);
 			}
 		}
+		
 		fclose(fptr);
 		fclose(tempFptr);
 		/*
@@ -1562,8 +1728,8 @@ void updateSelfRecord(){
 		/* Reads data from TeacherRecord.dat file and writes it in TempRec.dat file */
 		while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 		person.email, person.address, teacher.subject, &teacher.salary, person.entryDate) != -1) {
+    		entryDate();
 			if(loggedin_userid == person.id) {
-    			entryDate();
 				fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", person.id, person.first_name, person.last_name, 
 				p1.phone_num, p1.email, p1.address, teacher.subject, teacher.salary, person.entryDate);
 			} else {
@@ -1587,7 +1753,7 @@ void updateSelfRecord(){
 	options();
 }
 
-// Checks ID duplication
+// Checks ID duplication of records
 int isUniqueId(int idToSearch){
 	isSuccessful = 0;
 
@@ -1595,7 +1761,7 @@ int isUniqueId(int idToSearch){
 		
 		struct Student stdRec;
 		fptr = fopen("Student/StudentRecord.dat", "rb");
-						
+		
 		while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 		&student.grade, &person.phone_num, person.email, &student.dob.month, &student.dob.day, &student.dob.year, person.address,
 		person.entryDate) != -1){
@@ -1636,6 +1802,5 @@ int isUniqueId(int idToSearch){
 	
 	return isSuccessful;
 }
-
 
 
