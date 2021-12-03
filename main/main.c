@@ -25,9 +25,24 @@ struct Person{
 	char entryDate[12];
 }person;
 
+typedef struct{
+	//For marks in exam
+	char subject1[15];
+	short int marksOfSubject1;
+	char subject2[15];
+	short int marksOfSubject2;
+	char subject3[15];
+	short int marksOfSubject3;
+	char subject4[15];
+	short int marksOfSubject4;
+	char subject5[15];
+	short int marksOfSubject5;
+}Subjects;
+
 struct Student{
 	//Student
 	Date dob;
+	Subjects subject;
 	unsigned short int grade;
 }student;
 
@@ -52,16 +67,19 @@ void searchRecordById();
 void searchRecordsByName();
 void updateRecord();
 void deleteRecord();
-void deleteLoginRecord(FILE *, FILE *, int);
+void deleteLoginRecord(FILE *, int);
 void viewLoginInfo();
 void sortRecords();
 int getNumOfRecords();
-void sortLoginRecords(FILE *, FILE *, int);
+void sortLoginRecords(FILE *, int);
 void changePassword();
 int isValidUser(char*, char*);
 void getLoggedUserInfo();
 void updateSelfRecord();
 int isUniqueId(int idToSearch);
+void saveMarks();
+void displayMarksheet();
+void displayFullName();
 
 /* Variable Declaration */
 unsigned short int menuChoice, i;
@@ -137,32 +155,41 @@ void options(){
 	/* Displays main menu of the program */
 	printf("\t1. View Record(s)\n");
 	printf("\t2. Update Record\n");
+	if(strcmp("Teacher", who) != 0){
+		printf("\t3. Show Marksheet\n");
+	}
 	
 	/* Only administrative users will be able to access these options. */
 	if(!strcmp("Administration", who)){
-		printf("\t3. Add Record(s)\n");
-		printf("\t4. Delete Record\n");
-		printf("\t5. Search Record\n");
-		printf("\t6. Sort Records\n");
-		printf("\t7. View Login Information\n");
+		printf("\t4. Add Record(s)\n");
+		printf("\t5. Delete Record\n");
+		printf("\t6. Search Record\n");
+		printf("\t7. Sort Records\n");
+		printf("\t8. View Login Information\n");
+		printf("\t9. Save Marks\n");
 	}
 	/*Super admin won't be able to access this option. */
 	if(loggedin_userid != 20580913){
-		printf("\t8. Change Password\n");
+		printf("\t10.Change Password\n");
 	}
-	printf("\t10.Logout\n");
+	printf("\t11.Logout\n");
 	printf("\t0. Exit\n");
 	printf("\n\tEnter your choice: ");
 	scanf("%hu", &menuChoice);
 	
 	/* Prevents Students and Teachers from accessing Administrative Controls. */
-	if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 2 && menuChoice < 8)){
+	if(!strcmp("Teacher", who) && menuChoice == 3){
+		printf("\n\tInvalid input...\n\t");
+		system("pause");
+		system("cls");
+		options();
+	}else if( (!strcmp("Student", who) || !strcmp("Teacher", who)) && (menuChoice > 3 && menuChoice < 10)){
 		printf("\n\tInvalid input...\n\t");
 		system("pause");
 		system("cls");
 		options();
 	/*Prevents Super Admin from accessing change password feature.*/
-	} else if(loggedin_userid == 20580913 && menuChoice == 8){
+	} else if(loggedin_userid == 20580913 && menuChoice == 10){
 		printf("\n\tInvalid input...\n\t");
 		system("pause");
 		system("cls");
@@ -185,24 +212,30 @@ void options(){
 			}
 			break;
 		case 3:
-			addRecord();
+			displayMarksheet();
 			break;
 		case 4:
-			deleteRecord();
+			addRecord();
 			break;
 		case 5:
-			search();
+			deleteRecord();
 			break;
 		case 6:
-			sortRecords();
+			search();
 			break;
 		case 7:
-			viewLoginInfo();
+			sortRecords();
 			break;
 		case 8:
-			changePassword();
-			break;	
+			viewLoginInfo();
+			break;
+		case 9:
+			saveMarks();
+			break;
 		case 10:
+			changePassword();
+			break;
+		case 11:
 			printf("\n\tLogging out...\n\t");
 			system("pause");
 			who = NULL;
@@ -242,7 +275,7 @@ void login(){
 
 	/*
 		* Super Admin login credentials is the first expression of the below if condition
-		* The second expression makes a function call where login details given by user is passed as an arugument and checked if the credentials match with those in the file.
+		* The second expression makes a function call where login details given by user is passed as an argument and checked if the credentials match with those in the file.
 		* Both super admin and admins will have access to all the administrative controls.
 	*/
     if( (loggedin_userid == 20580913 && !strcmp("hari^Bdr", login_username) && !strcmp("2001128", login_password)) || isValidUser(login_username, login_password) ) {
@@ -251,7 +284,7 @@ void login(){
         options();
 
     } else {
-        printf("\n\n\tEntered credentials doesn't exist!!\n\n\t");
+        printf("\n\n\tEntered credentials doesn't match!!\n\n\t");
         system("pause");
         who = NULL;
         main();
@@ -260,7 +293,7 @@ void login(){
 
 /* Takes required data with the user and saves it to the respective file. */
 void addRecord(){
-	system("cls");
+//	system("cls");
 	char userResponse;
 	
 	while(1){
@@ -682,7 +715,7 @@ void searchRecordsByName(){
 		fptr = fopen("Student/StudentRecord.dat", "rb");
 		
 		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
+			printf("\n\t%s Records Not Found!!!", whom);
 		} else {
 			printf("\n%-7s %-24s %-7s %-15s %-30s %-12s %-16s %s", "ID", "Full Name", "Grade", "Phone Number", "E-mail", "DoB", "Address", "Entry Date");
 			printf("\n----------------------------------------------------------------------------------------------------------------------------------");
@@ -708,7 +741,7 @@ void searchRecordsByName(){
 		fptr = fopen("Teacher/TeacherRecord.dat", "rb");
 		
 		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
+			printf("\n\t%s Records Not Found!!!", whom);
 		} else {
 			
 			printf("%-7s %-25s %-13s %-30s %-15s %-13s %-11s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Subject", "Salary", "Entry Date");
@@ -734,7 +767,7 @@ void searchRecordsByName(){
 		fptr = fopen("Administration/AdministrationRecord.dat", "rb");
 		
 		if(fptr == NULL){
-			printf("\n\t%s File Not Found!!!", whom);
+			printf("\n\t%s Records Not Found!!!", whom);
 		} else {
 			printf("\n%-7s %-25s %-15s %-35s %-15s %-11s %s", "ID", "Full Name", "Phone Number", "E-mail", "Address", "Salary", "Entry Date");
 			printf("\n-----------------------------------------------------------------------------------------------------------------------------");
@@ -1051,7 +1084,7 @@ void deleteRecord(){
 				fptr = fopen("Student/StudentLogin.dat", "rb");
 				tempFptr = fopen("Student/TempLogin.dat", "ab");
 			
-				deleteLoginRecord(fptr, tempFptr, deleteId);
+				deleteLoginRecord(tempFptr, deleteId);
 				
 				fclose(fptr);
 				fclose(tempFptr);
@@ -1097,7 +1130,7 @@ void deleteRecord(){
 				tempFptr = fopen("Teacher/TempLogin.dat", "ab");
 			
 				/* Reads data from TeacherLogin.dat file and writes it in TempLogin.dat file */
-				deleteLoginRecord(fptr, tempFptr, deleteId);
+				deleteLoginRecord(tempFptr, deleteId);
 				
 				fclose(fptr);
 				fclose(tempFptr);
@@ -1140,7 +1173,7 @@ void deleteRecord(){
 				tempFptr = fopen("Administration/TempLogin.dat", "ab");
 				
 				/* Reads data from AdministrationLogin.dat file and writes it in TempLogin.dat file. */
-				deleteLoginRecord(fptr, tempFptr, deleteId);
+				deleteLoginRecord(tempFptr, deleteId);
 				
 				fclose(fptr);
 				fclose(tempFptr);
@@ -1168,9 +1201,9 @@ void deleteRecord(){
 }
 
 /* Deletes Login record of the user whose record was deleted recently using id. */
-void deleteLoginRecord(FILE *fileptr, FILE *tempFileptr, int deleteId){
+void deleteLoginRecord(FILE *tempFileptr, int deleteId){
 	
-	while(fscanf(fileptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
+	while(fscanf(fptr, "%d\t%s\t%s\n", &person.id, &person.username, &person.password) != -1){
 					
 		if(deleteId == person.id) {
 			continue;
@@ -1292,7 +1325,7 @@ void sortRecords(){
 		fptr = fopen("Student/StudentLogin.dat", "rb");
 		tempFptr = fopen("Student/tempLogin.dat", "ab");
 		
-		sortLoginRecords(fptr, tempFptr, recordCount);
+		sortLoginRecords(tempFptr, recordCount);
 		
 		fclose(fptr);
 		fclose(tempFptr);
@@ -1354,7 +1387,7 @@ void sortRecords(){
 		fptr = fopen("Teacher/TeacherLogin.dat", "rb");
 		tempFptr = fopen("Teacher/tempLogin.dat", "ab");
 
-		sortLoginRecords(fptr, tempFptr, recordCount);
+		sortLoginRecords(tempFptr, recordCount);
 		
 		fclose(fptr);
 		fclose(tempFptr);
@@ -1416,7 +1449,7 @@ void sortRecords(){
 		fptr = fopen("Administration/AdministrationLogin.dat", "rb");
 		tempFptr = fopen("Administration/tempLogin.dat", "ab");
 
-		sortLoginRecords(fptr, tempFptr, recordCount);
+		sortLoginRecords(tempFptr, recordCount);
 		
 		fclose(fptr);
 		fclose(tempFptr);
@@ -1457,13 +1490,13 @@ int getNumOfRecords(){
 }
 
 // Sorts record in the login record file.
-void sortLoginRecords(FILE *fileptr, FILE *tempFptr, int recordCount) {
+void sortLoginRecords(FILE *tempFptr, int recordCount) {
 	int j;
 	struct Person personData[recordCount];
 	i = 0;
 	
 	/* Fetches data from login file of respective category.*/
-	while(fscanf(fileptr, "%d\t%s\t%s\n", &personData[i].id, &personData[i].username, &personData[i].password) != -1){		
+	while(fscanf(fptr, "%d\t%s\t%s\n", &personData[i].id, &personData[i].username, &personData[i].password) != -1){		
 		i++;
 	}
 	
@@ -1801,6 +1834,145 @@ int isUniqueId(int idToSearch){
 	fclose(fptr);
 	
 	return isSuccessful;
+}
+
+//saves subject names are marks obtained in it and saves it to the file.
+void saveMarks(){
+	char userResponse;
+	
+	while(1){
+		system("cls");
+		welcome();
+		printf("\n\tEnter Student id: ");
+		scanf("%d", &person.id);
+
+		printf("\n\tEnter Subject1's title (No Spaces): ");
+		scanf(" %s", &student.subject.subject1);
+			
+		printf("\n\tEnter marks obtained in %s: ", student.subject.subject1);
+		scanf(" %hi", &student.subject.marksOfSubject1);
+	
+		printf("\n\tEnter Subject2's title (No Spaces): ");
+		scanf(" %s", &student.subject.subject2);
+			
+		printf("\n\tEnter marks obtained in %s: ", student.subject.subject2);
+		scanf(" %hi", &student.subject.marksOfSubject2);
+			
+		printf("\n\tEnter Subject3's title (No Spaces): ");
+		scanf(" %s", &student.subject.subject3);
+			
+		printf("\n\tEnter marks obtained in %s: ", student.subject.subject3);
+		scanf(" %hi", &student.subject.marksOfSubject3);
+			
+		printf("\n\tEnter Subject4's title (No Spaces): ");
+		scanf(" %s", &student.subject.subject4);
+			
+		printf("\n\tEnter marks obtained in %s: ", student.subject.subject4);
+		scanf(" %hi", &student.subject.marksOfSubject4);
+			
+		printf("\n\tEnter Subject5's title (No Spaces): ");
+		scanf(" %s", &student.subject.subject5);
+			
+		printf("\n\tEnter marks obtained in %s: ", student.subject.subject5);
+		scanf(" %hi", &student.subject.marksOfSubject5);
+	
+		fptr = fopen("Student/gradesheet.dat", "ab");
+			
+		if(fptr == NULL){
+			printf("\n\tSuch record doesn't exist");
+		} else {
+			fprintf(fptr, "%d\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\n", person.id, student.subject.subject1, student.subject.marksOfSubject1, student.subject.subject2,
+			student.subject.marksOfSubject2, student.subject.subject3, student.subject.marksOfSubject3, student.subject.subject4, student.subject.marksOfSubject4,
+			student.subject.subject5, student.subject.marksOfSubject5);				
+		
+			printf("\n\tRecord Added successfully!!");
+		}
+		fclose(fptr);
+
+		printf("\n\n\tDo you want to enter more data? 'n' NO: ");
+		scanf(" %c", &userResponse);
+		
+		if(userResponse == 'n' || userResponse == 'N'){
+			options();
+			break;
+		}
+	}
+	printf("\n\n\t");
+	system("pause");
+	options();
+}
+
+//displays the marksheet details.
+void displayMarksheet(){
+	int totalMarks;
+	system("cls");
+	welcome();
+	
+	fptr = fopen("Student/gradesheet.dat", "rb");
+	
+	if(fptr == NULL){
+		printf("\n\tNo Records available at the moment.");
+	} else {
+		if(!strcmp("Administration", who)){
+			printf("\n%-7s %-16s %-7s %-16s %-7s %-16s %-7s %-16s %-7s %-16s %s\n", "ID", "Subject1", "Marks", "Subject2", "Marks", "Subject3", "Marks", "Subject4", "Marks", "Subject5", "Marks");
+			printf("-----------------------------------------------------------------------------------------------------------------------------------");
+		}
+		
+		while(fscanf(fptr, "%d\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\n", &person.id, student.subject.subject1, &student.subject.marksOfSubject1, student.subject.subject2,
+		&student.subject.marksOfSubject2, student.subject.subject3, &student.subject.marksOfSubject3, student.subject.subject4, &student.subject.marksOfSubject4,
+		student.subject.subject5, &student.subject.marksOfSubject5) != -1){
+			if(!strcmp("Student", who)){
+				totalMarks = student.subject.marksOfSubject1 + student.subject.marksOfSubject2 + student.subject.marksOfSubject3 + student.subject.marksOfSubject4 + student.subject.marksOfSubject5;
+				if(loggedin_userid == person.id){
+					printf("\n\t**MARKSHEET**");
+					printf("\n\t--------------------------------------------------");
+					printf("\n\t ID: %-20d Name: ", person.id);
+					displayFullName();
+					printf("\n\t---------------------------------------------------");
+					printf("\n\t %-40s %hi", student.subject.subject1, student.subject.marksOfSubject1);
+					printf("\n\t %-40s %hi", student.subject.subject2, student.subject.marksOfSubject2);
+					printf("\n\t %-40s %hi", student.subject.subject3, student.subject.marksOfSubject3);
+					printf("\n\t %-40s %hi", student.subject.subject4, student.subject.marksOfSubject4);
+					printf("\n\t %-40s %hi", student.subject.subject5, student.subject.marksOfSubject5);
+					printf("\n\t---------------------------------------------------");
+					printf("\n\t Full Marks: %d", totalMarks);
+					printf("\n\t Percentage: %d%%",totalMarks/5);
+					printf("\n\t Result: ");
+					(totalMarks/5 > 40) ? printf("Passed") : printf("Failed");
+					printf("\n\t---------------------------------------------------");
+					break;
+				} else {
+					printf("\n\tNo record of your marksheet was found!");
+				}
+			} else {
+				printf("\n%-7d %-16s %-7hi %-16s %-7hi %-16s %-7hi %-16s %-7hi %-16s %hi", person.id, student.subject.subject1, student.subject.marksOfSubject1, student.subject.subject2, student.subject.marksOfSubject2,
+				student.subject.subject3, student.subject.marksOfSubject3, student.subject.subject4, student.subject.marksOfSubject4, student.subject.subject5, student.subject.marksOfSubject5);
+			}
+		}
+	}
+	fclose(fptr);
+	printf("\n\n\t");
+	system("pause");
+	options();
+}
+
+//displays full name on the marksheet
+void displayFullName(){
+	fptr = fopen("Student/StudentRecord.dat", "rb");
+	
+	if(fptr != NULL){
+		while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
+		&student.grade, &person.phone_num, person.email, &student.dob.month, &student.dob.day, &student.dob.year,
+		person.address, person.entryDate) != -1){
+				
+			if(loggedin_userid == person.id){
+				fullname = person.first_name;
+    			strcat(strcat(fullname, " "), person.last_name);
+				printf("%s", fullname);
+				break;
+			}
+		}
+	}
 }
 
 
