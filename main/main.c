@@ -432,10 +432,10 @@ void addRecord(){
 		system("pause");
 		
 		if(userResponse == 'n' || userResponse == 'N'){
-			options();
 			break;
 		}
 	}
+	options();
 }
 
 /* Validates DoB of student. */
@@ -889,8 +889,8 @@ void updateRecord(){
 				while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 				&student.grade, &person.phone_num, person.email, &student.dob.month, &student.dob.day, &student.dob.year,
 				person.address, person.entryDate) != -1) {
-					entryDate();
 					if(updateId == person.id) {
+						entryDate();
 						isSuccessful = 1;
 						fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", temp, p1.first_name, 
 						p1.last_name, s1.grade, p1.phone_num, p1.email, s1.dob.month, s1.dob.day, s1.dob.year, p1.address,
@@ -927,8 +927,8 @@ void updateRecord(){
 				/* Reads data from TeacherRecord.dat file and writes it in TempRec.dat file */
 				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, 
 				&person.phone_num, person.email, person.address, teacher.subject, &teacher.salary, person.entryDate) != -1) {
-    				entryDate();
 					if(updateId == person.id) {
+    					entryDate();
 						isSuccessful = 1;
 						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", temp, p1.first_name, p1.last_name, 
 						p1.phone_num, p1.email, p1.address, t1.subject, t1.salary, person.entryDate);
@@ -965,8 +965,8 @@ void updateRecord(){
 				/* Reads data from AdministrationRecord.dat file and writes it in TempRec.dat file */
 				while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, 
 				&person.phone_num, person.email, person.address, &teacher.salary, person.entryDate) != -1) {
-    				entryDate();
 					if(updateId == person.id) {
+    					entryDate();
 						isSuccessful = 1;
 						fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%i\t%s\n", temp, p1.first_name, p1.last_name,
 						p1.phone_num, p1.email, p1.address, t1.salary, person.entryDate);
@@ -1733,8 +1733,8 @@ void updateSelfRecord(){
 		while(fscanf(fptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", &person.id, person.first_name, person.last_name,
 		&student.grade, &person.phone_num, person.email, &student.dob.month, &student.dob.day, &student.dob.year,
 		person.address, person.entryDate) != -1) {
-			entryDate();
 			if(loggedin_userid == person.id) {
+				entryDate();
 				fprintf(tempFptr, "%d\t%s %s\t%hu\t%lld\t%s\t%hu/%hu/%hu\t%s\t%s\n", person.id, person.first_name, person.last_name,
 				s1.grade, person.phone_num, person.email, s1.dob.month, s1.dob.day, s1.dob.year, p1.address, person.entryDate);
 			} else {
@@ -1761,8 +1761,8 @@ void updateSelfRecord(){
 		/* Reads data from TeacherRecord.dat file and writes it in TempRec.dat file */
 		while(fscanf(fptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", &person.id, person.first_name, person.last_name, &person.phone_num,
 		person.email, person.address, teacher.subject, &teacher.salary, person.entryDate) != -1) {
-    		entryDate();
 			if(loggedin_userid == person.id) {
+    			entryDate();
 				fprintf(tempFptr, "%d\t%s %s\t%lld\t%s\t%s\t%s\t%i\t%s\n", person.id, person.first_name, person.last_name, 
 				p1.phone_num, p1.email, p1.address, teacher.subject, teacher.salary, person.entryDate);
 			} else {
