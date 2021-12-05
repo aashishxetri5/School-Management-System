@@ -1839,62 +1839,76 @@ int isUniqueId(int idToSearch){
 //saves subject names are marks obtained in it and saves it to the file.
 void saveMarks(){
 	char userResponse;
+	system("cls");
+	printf("\n\tPlease press 'y' to enter new terminal's result: ");
+	scanf(" %c", &userResponse);
+	
+	if(userResponse == 'y' || userResponse == 'Y'){
+		remove("Student/gradesheet.dat");
+	}
 	
 	while(1){
 		system("cls");
 		welcome();
+		
 		printf("\n\tEnter Student id: ");
 		scanf("%d", &person.id);
+		whom = "Student";
+		if(isUniqueId(person.id)) {
 
-		printf("\n\tEnter Subject1's title (No Spaces): ");
-		scanf(" %s", &student.subject.subject1);
+			printf("\n\tEnter Subject1's title (No Spaces): ");
+			scanf(" %s", &student.subject.subject1);
 			
-		printf("\n\tEnter marks obtained in %s: ", student.subject.subject1);
-		scanf(" %hi", &student.subject.marksOfSubject1);
+			printf("\n\tEnter marks obtained in %s: ", student.subject.subject1);
+			scanf("%hi", &student.subject.marksOfSubject1);
 	
-		printf("\n\tEnter Subject2's title (No Spaces): ");
-		scanf(" %s", &student.subject.subject2);
+			printf("\n\tEnter Subject2's title (No Spaces): ");
+			scanf(" %s", &student.subject.subject2);
 			
-		printf("\n\tEnter marks obtained in %s: ", student.subject.subject2);
-		scanf(" %hi", &student.subject.marksOfSubject2);
+			printf("\n\tEnter marks obtained in %s: ", student.subject.subject2);
+			scanf("%hi", &student.subject.marksOfSubject2);
 			
-		printf("\n\tEnter Subject3's title (No Spaces): ");
-		scanf(" %s", &student.subject.subject3);
+			printf("\n\tEnter Subject3's title (No Spaces): ");
+			scanf(" %s", &student.subject.subject3);
 			
-		printf("\n\tEnter marks obtained in %s: ", student.subject.subject3);
-		scanf(" %hi", &student.subject.marksOfSubject3);
+			printf("\n\tEnter marks obtained in %s: ", student.subject.subject3);
+			scanf("%hi", &student.subject.marksOfSubject3);
+				
+			printf("\n\tEnter Subject4's title (No Spaces): ");
+			scanf(" %s", &student.subject.subject4);
 			
-		printf("\n\tEnter Subject4's title (No Spaces): ");
-		scanf(" %s", &student.subject.subject4);
+			printf("\n\tEnter marks obtained in %s: ", student.subject.subject4);
+			scanf("%hi", &student.subject.marksOfSubject4);
 			
-		printf("\n\tEnter marks obtained in %s: ", student.subject.subject4);
-		scanf(" %hi", &student.subject.marksOfSubject4);
+			printf("\n\tEnter Subject5's title (No Spaces): ");
+			scanf(" %s", &student.subject.subject5);
 			
-		printf("\n\tEnter Subject5's title (No Spaces): ");
-		scanf(" %s", &student.subject.subject5);
-			
-		printf("\n\tEnter marks obtained in %s: ", student.subject.subject5);
-		scanf(" %hi", &student.subject.marksOfSubject5);
+			printf("\n\tEnter marks obtained in %s: ", student.subject.subject5);
+			scanf("%hi", &student.subject.marksOfSubject5);
 	
-		fptr = fopen("Student/gradesheet.dat", "ab");
+			fptr = fopen("Student/gradesheet.dat", "ab");
 			
-		if(fptr == NULL){
-			printf("\n\tSuch record doesn't exist");
+			if(fptr == NULL){
+				printf("\n\tSuch record doesn't exist");
+			} else {
+				fprintf(fptr, "%d\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\n", person.id, student.subject.subject1, student.subject.marksOfSubject1, student.subject.subject2,
+				student.subject.marksOfSubject2, student.subject.subject3, student.subject.marksOfSubject3, student.subject.subject4, student.subject.marksOfSubject4,
+				student.subject.subject5, student.subject.marksOfSubject5);
+		
+				printf("\n\tRecord Added successfully!!");
+			}
+			fclose(fptr);
+
+			printf("\n\n\tDo you want to enter more data? 'n' NO: ");
+			scanf(" %c", &userResponse);
+		
+			if(userResponse == 'n' || userResponse == 'N'){
+				options();
+				break;
+			}
 		} else {
-			fprintf(fptr, "%d\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\t%s\t%hi\n", person.id, student.subject.subject1, student.subject.marksOfSubject1, student.subject.subject2,
-			student.subject.marksOfSubject2, student.subject.subject3, student.subject.marksOfSubject3, student.subject.subject4, student.subject.marksOfSubject4,
-			student.subject.subject5, student.subject.marksOfSubject5);				
-		
-			printf("\n\tRecord Added successfully!!");
-		}
-		fclose(fptr);
-
-		printf("\n\n\tDo you want to enter more data? 'n' NO: ");
-		scanf(" %c", &userResponse);
-		
-		if(userResponse == 'n' || userResponse == 'N'){
-			options();
-			break;
+			printf("\n\tStudent with this id doesn't exist!!\n\t");
+			system("pause");
 		}
 	}
 	printf("\n\n\t");
