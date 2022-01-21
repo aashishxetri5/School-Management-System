@@ -697,7 +697,7 @@ void searchRecordById(){
 	options();
 }
 
-/* Lets Administrative user search record(s) through name. !There's Some error in this function's code */
+/* Lets Administrative user search record(s) through name.*/
 void searchRecordsByName(){
 	char nameToSearch[34];
 	char fname[18];
@@ -818,10 +818,10 @@ void updateRecord(){
 		scanf("%d", &p1.id);
 		
 		int temp = p1.id;
-		if(p1.id <= 0 || isUniqueId(temp)){
+		if(p1.id <= 0){
 			printf("\n\tEntered ID is invalid!!!\n\t");
 			system("pause");
-			addRecord();
+			options();
 		}
 	
 		printf("\n\tEnter the first name(max. 16 characters, no spaces): ");
@@ -1460,9 +1460,9 @@ void sortRecords(){
 	}
 
 	if(isSuccessful) {
-		printf("\n\n\tData Sorted Successfully!!\n\n\t");
+		printf("\n\n\t%s's Data Sorted Successfully!! Use View Records option to view!!\n\n\t", whom);
 	} else {
-		printf("\n\n\tProblem sorting the data!! Please recheck the data and try again later.\n\n\t");
+		printf("\n\n\tProblem sorting the data. Please recheck the data and try again later.\n\n\t");
 	}
 	
 	system("pause");
@@ -1529,17 +1529,6 @@ void changePassword(){
 	char newPassword[8], retypedPassword[8];
 	FILE *tempFptr = NULL;
 	
-	if(!strcmp("Student", who)){
-		fptr = fopen("Student/StudentLogin.dat", "rb");
-		tempFptr = fopen("Student/TempLogin.dat", "ab");
-	} else if(!strcmp("Teacher", who)){
-		fptr = fopen("Teacher/TeacherLogin.dat", "rb");
-		tempFptr = fopen("Teacher/TempLogin.dat", "ab");
-	} else if(!strcmp("Administration", who)){
-		fptr = fopen("Administration/AdministrationLogin.dat", "rb");
-		tempFptr = fopen("Administration/TempLogin.dat", "ab");
-	}
-	
 	printf("\n\tEnter new password: ");
 	/* Accepts Password and displays '*' instead of entered character. */
     for(i=0; i<7; i++) {
@@ -1557,7 +1546,18 @@ void changePassword(){
     retypedPassword[i]='\0';
 	
 	if(!strcmp(newPassword, retypedPassword)) {
-	
+		
+		if(!strcmp("Student", who)){
+			fptr = fopen("Student/StudentLogin.dat", "rb");
+			tempFptr = fopen("Student/TempLogin.dat", "ab");
+		} else if(!strcmp("Teacher", who)){
+			fptr = fopen("Teacher/TeacherLogin.dat", "rb");
+			tempFptr = fopen("Teacher/TempLogin.dat", "ab");
+		} else if(!strcmp("Administration", who)){
+			fptr = fopen("Administration/AdministrationLogin.dat", "rb");
+			tempFptr = fopen("Administration/TempLogin.dat", "ab");
+		}
+		
 		if(fptr == NULL) {
 				printf("\n\tCould not perform requested operation!!!"); // after login is unique for all users, remove this!
 		} else {
@@ -1588,16 +1588,15 @@ void changePassword(){
 		}
 		
 	} else {
-		printf("\n\tPasswords do not match!! Please try again\n\n\t");
-		system("pause");
+		printf("\n\tPasswords do not match!! Please Login again!!\n\n\t");
 	}
 	
 	if(isSuccessful){
-		printf("\n\tPassword Changed Successfully");
-	}else{
-		printf("\n\tProblem performing requested action.");
+		printf("\n\tPassword Changed Successfully. Please login again!!\n\n\t");
 	}
-	options();
+	system("pause");
+	who = NULL;
+	main();
 }
 
 // Retrives data from file with login credentials and compares with login details entered by user.
@@ -1924,7 +1923,7 @@ void displayMarksheet(){
 	
 	fptr = fopen("Student/gradesheet.dat", "rb");
 	
-	if(fptr == NULL){
+	if(fptr == NULL && !strcmp("Administration", who)){
 		printf("\n\tNo Records available at the moment.");
 	} else {
 		if(!strcmp("Administration", who)){
@@ -1954,17 +1953,22 @@ void displayMarksheet(){
 					printf("\n\t Result: ");
 					(totalMarks/5 > 40) ? printf("Passed") : printf("Failed");
 					printf("\n\t---------------------------------------------------");
+					isSuccessful = 1;
 					break;
-				} else {
-					printf("\n\tNo record of your marksheet was found!");
 				}
 			} else {
-				printf("\n%-7d %-16s %-7hi %-16s %-7hi %-16s %-7hi %-16s %-7hi %-16s %hi", person.id, student.subject.subject1, student.subject.marksOfSubject1, student.subject.subject2, student.subject.marksOfSubject2,
-				student.subject.subject3, student.subject.marksOfSubject3, student.subject.subject4, student.subject.marksOfSubject4, student.subject.subject5, student.subject.marksOfSubject5);
+				printf("\n%-7d %-16s %-7hi %-16s %-7hi %-16s %-7hi %-16s %-7hi %-16s %hi", person.id, student.subject.subject1, student.subject.marksOfSubject1, student.subject.subject2,
+				student.subject.marksOfSubject2, student.subject.subject3, student.subject.marksOfSubject3, student.subject.subject4, student.subject.marksOfSubject4, student.subject.subject5,
+				student.subject.marksOfSubject5);
 			}
 		}
 	}
 	fclose(fptr);
+	
+	if(!strcmp("Student", who) && !isSuccessful){
+		printf("\n\tNo record of your marksheet was found!");
+	}
+	
 	printf("\n\n\t");
 	system("pause");
 	options();
